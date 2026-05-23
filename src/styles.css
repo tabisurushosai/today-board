@@ -7,11 +7,18 @@
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+  --bg: #f7f3e8;
   --surface: #fffdf7;
+  --surface-strong: #ffffff;
   --ink: #101820;
   --muted: #4b5563;
   --accent: #0b5f73;
   --accent-dark: #063f4d;
+  --empty-bg: #fff3bf;
+  --empty-border: #8a5a00;
+  --success-ink: #16452a;
+  --success-bg: #dff3e6;
+  --success-border: #287a46;
   --warning: #7c2d12;
   --border: #27313b;
   --shadow: 0 12px 28px rgba(16, 24, 32, 0.14);
@@ -26,9 +33,10 @@ body {
   min-height: 100vh;
   margin: 0;
   color: var(--ink);
+  line-height: 1.45;
   background:
     radial-gradient(circle at top left, rgba(11, 95, 115, 0.14), transparent 34rem),
-    var(--bg, #f7f3e8);
+    var(--bg);
 }
 
 button,
@@ -39,7 +47,7 @@ input {
 #app {
   width: min(100%, 1040px);
   margin: 0 auto;
-  padding: 24px;
+  padding: clamp(16px, 3vw, 28px);
 }
 
 .app-header,
@@ -48,6 +56,7 @@ input {
 .editor-card,
 .premium-card,
 .app-footer,
+.loading-card,
 .load-error {
   border: 3px solid var(--border);
   border-radius: 28px;
@@ -58,9 +67,9 @@ input {
 .app-header {
   display: flex;
   gap: 24px;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  padding: 28px;
+  padding: clamp(24px, 4vw, 36px);
 }
 
 .app-title {
@@ -86,6 +95,7 @@ input {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+  align-items: center;
   justify-content: flex-end;
   min-width: 190px;
 }
@@ -101,12 +111,16 @@ input {
 .today-board {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 22px;
-  margin-top: 22px;
-  padding: 22px;
+  gap: clamp(16px, 3vw, 24px);
+  margin-top: 24px;
+  padding: clamp(18px, 3vw, 28px);
 }
 
 .large-fact {
+  display: flex;
+  min-height: 240px;
+  flex-direction: column;
+  justify-content: center;
   border-radius: 22px;
   padding: clamp(24px, 5vw, 48px);
   color: #ffffff;
@@ -131,8 +145,9 @@ input {
 .editor-card,
 .premium-card,
 .app-footer,
+.loading-card,
 .load-error {
-  margin-top: 22px;
+  margin-top: 24px;
   padding: clamp(24px, 5vw, 42px);
 }
 
@@ -151,17 +166,20 @@ input {
   font-weight: 900;
   font-size: clamp(3rem, 10vw, 7rem);
   line-height: 1.12;
+  overflow-wrap: anywhere;
 }
 
 .planned-value.empty {
   color: var(--ink);
-  background: #fff4cc;
+  border-color: var(--empty-border);
+  background: var(--empty-bg);
+  font-size: clamp(2rem, 6vw, 4rem);
 }
 
 .planned-form {
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: 14px;
+  gap: 16px;
   align-items: end;
 }
 
@@ -177,7 +195,7 @@ input[type="text"] {
   border-radius: 18px;
   padding: 18px 20px;
   color: var(--ink);
-  background: #ffffff;
+  background: var(--surface-strong);
   font-size: clamp(1.4rem, 3.5vw, 2.4rem);
 }
 
@@ -205,7 +223,7 @@ button:focus-visible {
 
 .secondary-button {
   color: var(--accent-dark);
-  background: #ffffff;
+  background: var(--surface-strong);
   font-size: 1rem;
 }
 
@@ -220,6 +238,15 @@ button:focus-visible {
   margin: 18px 0 0;
   font-weight: 800;
   font-size: clamp(1.15rem, 3vw, 1.7rem);
+}
+
+.status-message {
+  display: inline-block;
+  border: 2px solid var(--success-border);
+  border-radius: 999px;
+  padding: 10px 16px;
+  color: var(--success-ink);
+  background: var(--success-bg);
 }
 
 .payment-placeholder {
@@ -242,6 +269,13 @@ button:focus-visible {
   color: var(--warning);
   font-weight: 900;
   font-size: 1.5rem;
+}
+
+.loading-card {
+  color: var(--muted);
+  font-weight: 800;
+  font-size: clamp(1.35rem, 3vw, 2rem);
+  text-align: center;
 }
 
 @media (max-width: 720px) {

@@ -18,6 +18,7 @@ const translations = {
     plannedItemInputLabel: "次の予定",
     save: "保存",
     saved: "保存しました",
+    loading: "読み込み中...",
     language: "表示言語",
     japanese: "日本語",
     english: "English",
@@ -46,6 +47,7 @@ const translations = {
     plannedItemInputLabel: "Next planned item",
     save: "Save",
     saved: "Saved",
+    loading: "Loading...",
     language: "Display language",
     japanese: "日本語",
     english: "English",
@@ -77,6 +79,8 @@ async function initialize(): Promise<void> {
   if (!app) {
     return;
   }
+
+  renderLoading(resolveLocale(navigator.language));
 
   try {
     state = await storage.load();
@@ -212,9 +216,14 @@ function createEditor(locale: SupportedLocale): HTMLElement {
     void savePlannedItem(input.value);
   });
 
-  const message = element("p", "status-message", statusMessage);
-  message.setAttribute("role", "status");
-  section.append(heading, hint, form, message);
+  section.append(heading, hint, form);
+
+  if (statusMessage) {
+    const message = element("p", "status-message", statusMessage);
+    message.setAttribute("role", "status");
+    section.append(message);
+  }
+
   return section;
 }
 
@@ -278,6 +287,12 @@ async function updateLocale(locale: SupportedLocale): Promise<void> {
 
 function renderLoadError(locale: SupportedLocale): void {
   app?.replaceChildren(element("div", "load-error", text(locale, "loadError")));
+}
+
+function renderLoading(locale: SupportedLocale): void {
+  const loading = element("div", "loading-card", text(locale, "loading"));
+  loading.setAttribute("role", "status");
+  app?.replaceChildren(loading);
 }
 
 function text(locale: SupportedLocale, key: TranslationKey): string {
