@@ -22,6 +22,7 @@
   --warning: #7c2d12;
   --border: #1f2933;
   --focus: #ffbf47;
+  --focus-outer: #101820;
   --card-radius: 28px;
   --card-gap: clamp(18px, 3vw, 28px);
   --shadow: 0 12px 28px rgba(16, 24, 32, 0.14);
@@ -98,7 +99,7 @@ input {
 .language-controls {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 12px;
   align-items: center;
   justify-content: flex-end;
   min-width: 190px;
@@ -237,19 +238,22 @@ input[type="text"] {
 
 input[type="text"]:focus,
 button:focus-visible {
-  outline: 5px solid var(--focus);
-  outline-offset: 3px;
+  outline: 4px solid var(--focus-outer);
+  outline-offset: 4px;
+  box-shadow: 0 0 0 8px var(--focus);
 }
 
 .primary-button,
 .secondary-button {
-  min-height: 54px;
+  min-width: 56px;
+  min-height: 56px;
   border: 3px solid var(--accent-dark);
   border-radius: 999px;
-  padding: 12px 24px;
+  padding: 14px 26px;
   cursor: pointer;
   font-weight: 900;
   line-height: 1.2;
+  touch-action: manipulation;
 }
 
 .primary-button {
@@ -261,7 +265,7 @@ button:focus-visible {
 .secondary-button {
   color: var(--accent-dark);
   background: var(--surface-strong);
-  font-size: 1rem;
+  font-size: 1.05rem;
 }
 
 .secondary-button[aria-pressed="true"] {
@@ -295,6 +299,19 @@ button:focus-visible {
   background: var(--success-border);
   font-size: 0.82em;
   letter-spacing: 0.04em;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  border: 0;
+  padding: 0;
+  white-space: nowrap;
 }
 
 .payment-placeholder {
@@ -372,5 +389,10 @@ button:focus-visible {
 
   .planned-form {
     grid-template-columns: 1fr;
+  }
+
+  .primary-button,
+  .secondary-button {
+    min-height: 60px;
   }
 }
