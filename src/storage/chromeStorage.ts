@@ -57,7 +57,7 @@ function normalizeStoredPlannedItem(items: Record<string, unknown>): PlannedItem
 
 function chromeGetAll(): Promise<Record<string, unknown>> {
   return new Promise((resolve, reject) => {
-    chrome.storage.local.get(null, (items) => {
+    chrome.storage.local.get(null, (items: Record<string, unknown>) => {
       const error = chrome.runtime.lastError;
       if (error) {
         reject(new Error(error.message));

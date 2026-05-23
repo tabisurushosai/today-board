@@ -248,7 +248,8 @@ function createFooter(locale: SupportedLocale): HTMLElement {
 }
 
 async function savePlannedItem(rawValue: string): Promise<void> {
-  if (!state.locale) {
+  const locale = state.locale;
+  if (!locale) {
     return;
   }
 
@@ -261,7 +262,7 @@ async function savePlannedItem(rawValue: string): Promise<void> {
     ...state,
     plannedItem,
   };
-  statusMessage = text(state.locale, "saved");
+  statusMessage = text(locale, "saved");
   render();
 }
 
