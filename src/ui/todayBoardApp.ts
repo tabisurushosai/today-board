@@ -17,7 +17,10 @@ const translations = {
     plannedItemInputLabel: "次の予定",
     save: "保存",
     saved: "保存しました",
-    loading: "読み込み中...",
+    savedStateLabel: "完了",
+    loadingTitle: "読み込み中",
+    loading: "保存した内容を確認しています。",
+    emptyStateLabel: "未登録",
     language: "表示言語",
     japanese: "日本語",
     english: "English",
@@ -32,6 +35,7 @@ const translations = {
     paymentMeta: "買い切り",
     privacyNote: "ネットワーク通信なし。保存はこの端末のChrome storageのみです。",
     footerScope: "この拡張は日付・曜日・次の予定の表示だけを行います。",
+    loadErrorTitle: "読み込みに失敗しました",
     loadError: "保存データの読み込みに失敗しました。拡張を再読み込みしてください。",
   },
   en: {
@@ -46,7 +50,10 @@ const translations = {
     plannedItemInputLabel: "Next planned item",
     save: "Save",
     saved: "Saved",
-    loading: "Loading...",
+    savedStateLabel: "Done",
+    loadingTitle: "Loading",
+    loading: "Checking saved content.",
+    emptyStateLabel: "Not saved",
     language: "Display language",
     japanese: "日本語",
     english: "English",
@@ -61,6 +68,7 @@ const translations = {
     paymentMeta: "one-time purchase",
     privacyNote: "No network communication. Data is saved only in this device's Chrome storage.",
     footerScope: "This extension only displays the date, day of week, and next planned item.",
+    loadErrorTitle: "Could not load data",
     loadError: "Could not load saved data. Please reload the extension.",
   },
 } as const;
@@ -195,10 +203,17 @@ class TodayBoardApp {
   }
 
   private createPlannedItemCard(locale: SupportedLocale): HTMLElement {
-    const section = element("section", "planned-card");
+    const hasPlannedItem = this.state.plannedItem.text.length > 0;
+    const section = element("section", hasPlannedItem ? "planned-card" : "planned-card empty-state");
     const heading = element("h2", "section-title", text(locale, "plannedItemLabel"));
-    const plannedText = this.state.plannedItem.text || text(locale, "noPlannedItem");
-    const value = element("p", this.state.plannedItem.text ? "planned-value" : "planned-value empty", plannedText);
+    const plannedText = hasPlannedItem ? this.state.plannedItem.text : text(locale, "noPlannedItem");
+    const value = element("p", hasPlannedItem ? "planned-value" : "planned-value empty", plannedText);
+
+    if (!hasPlannedItem) {
+      section.append(heading, element("p", "state-badge", text(locale, "emptyStateLabel")), value);
+      return section;
+    }
+
     section.append(heading, value);
     return section;
   }
@@ -237,8 +252,9 @@ class TodayBoardApp {
     section.append(heading, hint, form);
 
     if (this.statusMessage) {
-      const message = element("p", "status-message", this.statusMessage);
+      const message = element("p", "status-message");
       message.setAttribute("role", "status");
+      message.append(element("span", "status-label", text(locale, "savedStateLabel")), this.statusMessage);
       section.append(message);
     }
 
@@ -304,12 +320,23 @@ class TodayBoardApp {
   }
 
   private renderLoadError(locale: SupportedLocale): void {
-    this.root?.replaceChildren(element("div", "load-error", text(locale, "loadError")));
+    const error = element("section", "load-error state-card");
+    error.setAttribute("role", "alert");
+    error.append(
+      element("h1", "state-title", text(locale, "loadErrorTitle")),
+      element("p", "state-description", text(locale, "loadError")),
+    );
+    this.root?.replaceChildren(error);
   }
 
   private renderLoading(locale: SupportedLocale): void {
-    const loading = element("div", "loading-card", text(locale, "loading"));
+    const loading = element("section", "loading-card state-card");
     loading.setAttribute("role", "status");
+    loading.setAttribute("aria-live", "polite");
+    loading.append(
+      element("h1", "state-title", text(locale, "loadingTitle")),
+      element("p", "state-description", text(locale, "loading")),
+    );
     this.root?.replaceChildren(loading);
   }
 }
