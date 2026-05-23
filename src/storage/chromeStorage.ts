@@ -1,63 +1,23 @@
-import { createDefaultState, normalizeStoredLocale, normalizeStoredString } from "../core/state";
-import type { AppState, AppStatePatch, PlannedItem } from "../core/types";
-import type { AppStorage } from "./appStorage";
-
-const STORAGE_KEYS = {
-  plannedItemText: "plannedItemText",
-  plannedItemUpdatedAt: "plannedItemUpdatedAt",
-  firstOpenedAt: "firstOpenedAt",
-  premiumPurchasedAt: "premiumPurchasedAt",
-  locale: "locale",
-} as const;
+import type { AppState, AppStatePatch } from "../core/types";
+import type { AppStorage, SerializedAppStatePatch, StorageRecord } from "./appStorage";
+import { deserializeAppState, serializeAppStatePatch } from "./serialization";
 
 export class ChromeLocalStorageAdapter implements AppStorage {
-  async load(): Promise<AppState> {
-    const items = await chromeGetAll();
-    const defaultState = createDefaultState();
+  constructor(private readonly storageArea: chrome.storage.StorageArea = chrome.storage.local) {}
 
-    return {
-      ...defaultState,
-      plannedItem: normalizeStoredPlannedItem(items),
-      firstOpenedAt: normalizeStoredString(items[STORAGE_KEYS.firstOpenedAt]),
-      premiumPurchasedAt: normalizeStoredString(items[STORAGE_KEYS.premiumPurchasedAt]),
-      locale: normalizeStoredLocale(items[STORAGE_KEYS.locale]),
-    };
+  async load(): Promise<AppState> {
+    const items = await chromeGetAll(this.storageArea);
+    return deserializeAppState(items);
   }
 
   async save(patch: AppStatePatch): Promise<void> {
-    const serialized: Record<string, string | null> = {};
-
-    if (patch.plannedItem) {
-      serialized[STORAGE_KEYS.plannedItemText] = patch.plannedItem.text;
-      serialized[STORAGE_KEYS.plannedItemUpdatedAt] = patch.plannedItem.updatedAt;
-    }
-
-    if (patch.firstOpenedAt !== undefined) {
-      serialized[STORAGE_KEYS.firstOpenedAt] = patch.firstOpenedAt;
-    }
-
-    if (patch.premiumPurchasedAt !== undefined) {
-      serialized[STORAGE_KEYS.premiumPurchasedAt] = patch.premiumPurchasedAt;
-    }
-
-    if (patch.locale !== undefined) {
-      serialized[STORAGE_KEYS.locale] = patch.locale;
-    }
-
-    await chromeSet(serialized);
+    await chromeSet(this.storageArea, serializeAppStatePatch(patch));
   }
 }
 
-function normalizeStoredPlannedItem(items: Record<string, unknown>): PlannedItem {
-  return {
-    text: normalizeStoredString(items[STORAGE_KEYS.plannedItemText]) ?? "",
-    updatedAt: normalizeStoredString(items[STORAGE_KEYS.plannedItemUpdatedAt]),
-  };
-}
-
-function chromeGetAll(): Promise<Record<string, unknown>> {
+function chromeGetAll(storageArea: chrome.storage.StorageArea): Promise<StorageRecord> {
   return new Promise((resolve, reject) => {
-    chrome.storage.local.get(null, (items: Record<string, unknown>) => {
+    storageArea.get(null, (items: StorageRecord) => {
       const error = chrome.runtime.lastError;
       if (error) {
         reject(new Error(error.message));
@@ -69,9 +29,9 @@ function chromeGetAll(): Promise<Record<string, unknown>> {
   });
 }
 
-function chromeSet(items: Record<string, string | null>): Promise<void> {
+function chromeSet(storageArea: chrome.storage.StorageArea, items: SerializedAppStatePatch): Promise<void> {
   return new Promise((resolve, reject) => {
-    chrome.storage.local.set(items, () => {
+    storageArea.set(items, () => {
       const error = chrome.runtime.lastError;
       if (error) {
         reject(new Error(error.message));
