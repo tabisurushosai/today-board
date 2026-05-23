@@ -1,0 +1,11 @@
+{
+  "extensionName": {
+    "message": "きょうボード"
+  },
+  "extensionShortName": {
+    "message": "きょうボード"
+  },
+  "extensionDescription": {
+    "message": "高齢者の見当識を支えるため、今日の日付・曜日・次の予定を大きな文字で表示します。"
+  }
+}

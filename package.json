@@ -1,0 +1,24 @@
+{
+  "name": "today-board",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Large-text orientation board Chrome extension for today's date, day of week, and next planned item.",
+  "scripts": {
+    "build": "tsc --noEmit && vite build",
+    "dev": "vite --host 0.0.0.0",
+    "generate:icons": "node scripts/generate-icons.mjs"
+  },
+  "keywords": [
+    "chrome-extension",
+    "orientation",
+    "senior-friendly"
+  ],
+  "author": "",
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@types/chrome": "latest",
+    "typescript": "latest",
+    "vite": "latest"
+  }
+}

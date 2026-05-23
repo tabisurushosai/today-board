@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "__MSG_extensionName__",
+  "short_name": "__MSG_extensionShortName__",
+  "description": "__MSG_extensionDescription__",
+  "version": "0.1.0",
+  "default_locale": "ja",
+  "permissions": ["storage"],
+  "action": {
+    "default_title": "__MSG_extensionShortName__",
+    "default_popup": "index.html"
+  },
+  "chrome_url_overrides": {
+    "newtab": "index.html"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
