@@ -1,4 +1,5 @@
 import { buildTodayViewModel, resolveLocale } from "../core/date";
+import { formatDayCount, formatUsdPrice } from "../core/format";
 import { normalizePlannedItemText } from "../core/plannedItem";
 import { PREMIUM_PRICE_USD, STRIPE_PAYMENT_LINK, getPremiumStatus } from "../core/premium";
 import type { AppState, SupportedLocale } from "../core/types";
@@ -7,13 +8,13 @@ import type { AppStorage } from "../storage/appStorage";
 const translations = {
   ja: {
     appTitle: "きょうボード",
-    purpose: "今日の日付・曜日・次の予定を大きく表示します。",
+    purpose: "今日の日付・曜日と次の予定を大きく表示します。",
     dateLabel: "今日の日付",
     weekdayLabel: "曜日",
     plannedItemLabel: "次の予定",
-    noPlannedItem: "次の予定はまだ登録されていません",
+    noPlannedItem: "次の予定はまだ登録されていません。",
     editTitle: "次の予定を登録",
-    editHint: "短い言葉で1件だけ登録できます。",
+    editHint: "1件だけ、短い言葉で登録できます。",
     plannedItemInputLabel: "次の予定",
     save: "保存",
     saved: "保存しました",
@@ -28,25 +29,24 @@ const translations = {
     trialActive: "7日間トライアル中",
     trialExpired: "トライアルは終了しました",
     premiumActive: "Premium 有効",
-    daysRemaining: "残り",
-    dayUnit: "日",
-    premiumNote: "基本表示はPremiumが無効でも使えます。",
-    paymentPending: "支払いリンクは本番設定待ちです",
+    trialRemaining: "残り",
+    premiumNote: "Premiumが無効でも、基本表示は使えます。",
+    paymentPending: "支払いリンクは本番設定待ちです。",
     paymentMeta: "買い切り",
-    privacyNote: "ネットワーク通信なし。保存はこの端末のローカル保存のみです。",
+    privacyNote: "ネットワーク通信はありません。保存はこの端末のローカル保存のみです。",
     footerScope: "この拡張は日付・曜日・次の予定の表示だけを行います。",
     loadErrorTitle: "読み込みに失敗しました",
     loadError: "保存データの読み込みに失敗しました。拡張を再読み込みしてください。",
   },
   en: {
     appTitle: "Today Board",
-    purpose: "Shows today's date, day of week, and the next planned item in large text.",
+    purpose: "Shows today's date, the day of the week, and the next planned item in large text.",
     dateLabel: "Today's date",
     weekdayLabel: "Day of week",
     plannedItemLabel: "Next planned item",
-    noPlannedItem: "No next planned item has been saved yet",
+    noPlannedItem: "No next planned item has been saved yet.",
     editTitle: "Save the next planned item",
-    editHint: "Save one short item.",
+    editHint: "Save one short item only.",
     plannedItemInputLabel: "Next planned item",
     save: "Save",
     saved: "Saved",
@@ -61,13 +61,12 @@ const translations = {
     trialActive: "7-day trial active",
     trialExpired: "Trial has ended",
     premiumActive: "Premium active",
-    daysRemaining: "Days left",
-    dayUnit: "day(s)",
+    trialRemaining: "left",
     premiumNote: "The basic display works even when Premium is inactive.",
-    paymentPending: "Payment link is waiting for production setup",
+    paymentPending: "Payment link is pending production setup.",
     paymentMeta: "one-time purchase",
     privacyNote: "No network communication. Data is saved only in this device's local storage.",
-    footerScope: "This extension only displays the date, day of week, and next planned item.",
+    footerScope: "This extension only displays the date, the day of the week, and the next planned item.",
     loadErrorTitle: "Could not load data",
     loadError: "Could not load saved data. Please reload the extension.",
   },
@@ -286,14 +285,14 @@ class TodayBoardApp {
     const status = premium.isPremium
       ? text(locale, "premiumActive")
       : premium.isTrialActive
-        ? `${text(locale, "trialActive")} - ${text(locale, "daysRemaining")} ${premium.daysRemaining} ${text(locale, "dayUnit")}`
+        ? formatTrialStatus(locale, premium.daysRemaining)
         : text(locale, "trialExpired");
     const statusLine = element("p", "premium-status", status);
     const note = element("p", "hint", text(locale, "premiumNote"));
     const payment = element(
       "p",
       "payment-placeholder",
-      `$${PREMIUM_PRICE_USD} ${text(locale, "paymentMeta")} - ${text(locale, "paymentPending")}`,
+      formatPaymentSummary(locale, PREMIUM_PRICE_USD),
     );
     payment.dataset.paymentLinkPlaceholder = STRIPE_PAYMENT_LINK;
     section.append(heading, statusLine, note, payment);
@@ -381,6 +380,24 @@ function createLargeFact(idPrefix: string, label: string, value: string): HTMLEl
 
 function text(locale: SupportedLocale, key: TranslationKey): string {
   return translations[locale][key];
+}
+
+function formatTrialStatus(locale: SupportedLocale, daysRemaining: number): string {
+  const remainingDays = formatDayCount(daysRemaining, locale);
+  if (locale === "ja") {
+    return `${text(locale, "trialActive")}（${text(locale, "trialRemaining")}${remainingDays}）`;
+  }
+
+  return `${text(locale, "trialActive")} (${remainingDays} ${text(locale, "trialRemaining")})`;
+}
+
+function formatPaymentSummary(locale: SupportedLocale, amountUsd: number): string {
+  const price = formatUsdPrice(amountUsd, locale);
+  if (locale === "ja") {
+    return `${price}（${text(locale, "paymentMeta")}） - ${text(locale, "paymentPending")}`;
+  }
+
+  return `${price} ${text(locale, "paymentMeta")} - ${text(locale, "paymentPending")}`;
 }
 
 function element(tagName: string, className = "", content = ""): HTMLElement {
