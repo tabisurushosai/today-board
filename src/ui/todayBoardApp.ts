@@ -97,6 +97,7 @@ class TodayBoardApp {
   private readonly scheduleRender?: ScheduleRender;
   private state!: AppState;
   private statusMessage = "";
+  private pendingFocusId: string | null = null;
 
   constructor(options: TodayBoardAppOptions) {
     this.root = options.root;
@@ -168,6 +169,9 @@ class TodayBoardApp {
 
     const languageControls = element("div", "language-controls");
     const label = element("p", "control-label", text(locale, "language"));
+    label.id = "language-controls-label";
+    languageControls.setAttribute("role", "group");
+    languageControls.setAttribute("aria-labelledby", "language-controls-label");
     const jaButton = this.createLanguageButton(locale, "ja", text(locale, "japanese"));
     const enButton = this.createLanguageButton(locale, "en", text(locale, "english"));
     languageControls.append(label, jaButton, enButton);
@@ -182,6 +186,7 @@ class TodayBoardApp {
     label: string,
   ): HTMLButtonElement {
     const button = document.createElement("button");
+    button.id = `language-${nextLocale}`;
     button.type = "button";
     button.className = "secondary-button";
     button.textContent = label;
@@ -196,8 +201,8 @@ class TodayBoardApp {
     const section = element("section", "today-board");
     section.setAttribute("aria-label", text(locale, "appTitle"));
     section.append(
-      createLargeFact(text(locale, "dateLabel"), dateText),
-      createLargeFact(text(locale, "weekdayLabel"), weekdayText),
+      createLargeFact("date-fact", text(locale, "dateLabel"), dateText),
+      createLargeFact("weekday-fact", text(locale, "weekdayLabel"), weekdayText),
     );
     return section;
   }
@@ -206,6 +211,8 @@ class TodayBoardApp {
     const hasPlannedItem = this.state.plannedItem.text.length > 0;
     const section = element("section", hasPlannedItem ? "planned-card" : "planned-card empty-state");
     const heading = element("h2", "section-title", text(locale, "plannedItemLabel"));
+    heading.id = "planned-item-heading";
+    section.setAttribute("aria-labelledby", "planned-item-heading");
     const plannedText = hasPlannedItem ? this.state.plannedItem.text : text(locale, "noPlannedItem");
     const value = element("p", hasPlannedItem ? "planned-value" : "planned-value empty", plannedText);
 
@@ -221,7 +228,10 @@ class TodayBoardApp {
   private createEditor(locale: SupportedLocale): HTMLElement {
     const section = element("section", "editor-card");
     const heading = element("h2", "section-title", text(locale, "editTitle"));
+    heading.id = "planned-item-editor-heading";
     const hint = element("p", "hint", text(locale, "editHint"));
+    hint.id = "planned-item-hint";
+    section.setAttribute("aria-labelledby", "planned-item-editor-heading");
     const form = document.createElement("form");
     form.className = "planned-form";
 
@@ -237,6 +247,7 @@ class TodayBoardApp {
     input.maxLength = 80;
     input.value = this.state.plannedItem.text;
     input.autocomplete = "off";
+    input.setAttribute("aria-describedby", "planned-item-hint planned-item-status");
 
     const saveButton = document.createElement("button");
     saveButton.type = "submit";
@@ -251,12 +262,15 @@ class TodayBoardApp {
 
     section.append(heading, hint, form);
 
+    const message = element("p", this.statusMessage ? "status-message" : "visually-hidden");
+    message.id = "planned-item-status";
+    message.setAttribute("role", "status");
+    message.setAttribute("aria-live", "polite");
+    message.setAttribute("aria-atomic", "true");
     if (this.statusMessage) {
-      const message = element("p", "status-message");
-      message.setAttribute("role", "status");
       message.append(element("span", "status-label", text(locale, "savedStateLabel")), this.statusMessage);
-      section.append(message);
     }
+    section.append(message);
 
     return section;
   }
@@ -267,6 +281,8 @@ class TodayBoardApp {
   ): HTMLElement {
     const section = element("section", "premium-card");
     const heading = element("h2", "section-title", text(locale, "premiumTitle"));
+    heading.id = "premium-heading";
+    section.setAttribute("aria-labelledby", "premium-heading");
     const status = premium.isPremium
       ? text(locale, "premiumActive")
       : premium.isTrialActive
@@ -307,6 +323,8 @@ class TodayBoardApp {
     };
     this.statusMessage = text(locale, "saved");
     this.render();
+    this.pendingFocusId = "planned-item";
+    this.restorePendingFocus();
   }
 
   private async updateLocale(locale: SupportedLocale): Promise<void> {
@@ -317,6 +335,17 @@ class TodayBoardApp {
     };
     this.statusMessage = "";
     this.render();
+    this.pendingFocusId = `language-${locale}`;
+    this.restorePendingFocus();
+  }
+
+  private restorePendingFocus(): void {
+    if (!this.pendingFocusId) {
+      return;
+    }
+
+    document.getElementById(this.pendingFocusId)?.focus();
+    this.pendingFocusId = null;
   }
 
   private renderLoadError(locale: SupportedLocale): void {
@@ -341,9 +370,12 @@ class TodayBoardApp {
   }
 }
 
-function createLargeFact(label: string, value: string): HTMLElement {
+function createLargeFact(idPrefix: string, label: string, value: string): HTMLElement {
   const wrapper = element("article", "large-fact");
-  wrapper.append(element("p", "fact-label", label), element("p", "fact-value", value));
+  const labelNode = element("p", "fact-label", label);
+  labelNode.id = `${idPrefix}-label`;
+  wrapper.setAttribute("aria-labelledby", `${idPrefix}-label`);
+  wrapper.append(labelNode, element("p", "fact-value", value));
   return wrapper;
 }
 
