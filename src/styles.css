@@ -7,13 +7,13 @@
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-  --bg: #f7f3e8;
+  --bg: #f8f4ea;
   --surface: #fffdf7;
   --surface-strong: #ffffff;
   --surface-soft: #fff8e8;
   --ink: #101820;
-  --muted: #4b5563;
-  --muted-strong: #374151;
+  --muted: #374151;
+  --muted-strong: #1f2937;
   --accent: #0b5f73;
   --accent-dark: #063f4d;
   --accent-soft: #e7f4f7;
@@ -30,7 +30,8 @@
   --focus-outer: #101820;
   --card-radius: 28px;
   --card-gap: clamp(18px, 3vw, 28px);
-  --shadow: 0 12px 28px rgba(16, 24, 32, 0.14);
+  --shadow: 0 14px 30px rgba(16, 24, 32, 0.13);
+  --shadow-soft: 0 8px 20px rgba(16, 24, 32, 0.08);
 }
 
 * {
@@ -43,7 +44,7 @@ body {
   margin: 0;
   color: var(--ink);
   font-size: 16px;
-  line-height: 1.5;
+  line-height: 1.6;
   background:
     radial-gradient(circle at top left, rgba(11, 95, 115, 0.16), transparent 34rem),
     linear-gradient(180deg, rgba(255, 255, 255, 0.42), transparent 28rem),
@@ -58,7 +59,7 @@ input {
 #app {
   width: min(100%, 1040px);
   margin: 0 auto;
-  padding: clamp(16px, 4vw, 36px);
+  padding: clamp(18px, 4vw, 40px);
 }
 
 .skip-link {
@@ -106,7 +107,7 @@ input {
   justify-content: space-between;
   padding: clamp(24px, 4vw, 38px);
   background:
-    linear-gradient(135deg, rgba(231, 244, 247, 0.9), rgba(255, 253, 247, 0.86) 45%),
+    linear-gradient(135deg, rgba(231, 244, 247, 0.94), rgba(255, 253, 247, 0.9) 48%),
     var(--surface);
 }
 
@@ -118,7 +119,7 @@ input {
   margin: 0;
   font-size: clamp(2.6rem, 8vw, 5rem);
   line-height: 1.02;
-  letter-spacing: 0.01em;
+  letter-spacing: -0.01em;
   text-wrap: balance;
 }
 
@@ -131,8 +132,9 @@ input {
 }
 
 .app-purpose {
-  margin: 12px 0 0;
+  margin: 16px 0 0;
   max-width: 40rem;
+  font-weight: 700;
 }
 
 .language-controls {
@@ -145,7 +147,8 @@ input {
   border: 2px solid var(--border-soft);
   border-radius: 22px;
   padding: 14px;
-  background: rgba(255, 255, 255, 0.62);
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: var(--shadow-soft);
 }
 
 .language-controls:focus-within,
@@ -181,7 +184,7 @@ input {
   padding: clamp(24px, 5vw, 48px);
   color: #ffffff;
   background:
-    linear-gradient(150deg, rgba(255, 255, 255, 0.1), transparent 42%),
+    linear-gradient(150deg, rgba(255, 255, 255, 0.14), transparent 44%),
     var(--accent-dark);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
 }
@@ -190,6 +193,7 @@ input {
   margin: 0 0 18px;
   font-weight: 800;
   font-size: clamp(1.2rem, 3vw, 2rem);
+  letter-spacing: 0.04em;
 }
 
 .fact-value {
@@ -215,7 +219,8 @@ input {
 
 .planned-card {
   display: grid;
-  gap: clamp(14px, 2.5vw, 22px);
+  gap: clamp(16px, 2.5vw, 24px);
+  border-color: var(--accent-dark);
   background:
     linear-gradient(180deg, rgba(231, 244, 247, 0.42), transparent 13rem),
     var(--surface);
@@ -227,14 +232,15 @@ input {
   gap: 14px;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 2px solid var(--border-muted);
-  padding-bottom: clamp(14px, 2vw, 20px);
+  border-bottom: 3px solid var(--border-muted);
+  padding-bottom: clamp(16px, 2vw, 22px);
 }
 
 .section-title {
   margin: 0;
   font-size: clamp(1.8rem, 4vw, 3rem);
   line-height: 1.12;
+  letter-spacing: -0.01em;
   text-wrap: balance;
 }
 
@@ -261,7 +267,7 @@ input {
   border-radius: 24px;
   color: #ffffff;
   background:
-    linear-gradient(160deg, rgba(255, 255, 255, 0.13), transparent 36%),
+    linear-gradient(160deg, rgba(255, 255, 255, 0.16), transparent 38%),
     var(--accent);
   font-weight: 900;
   font-size: clamp(3rem, 10vw, 7rem);
@@ -278,9 +284,11 @@ input {
   border-style: dashed;
   background: var(--empty-bg);
   font-size: clamp(2rem, 6vw, 4rem);
+  line-height: 1.2;
 }
 
 .planned-card.empty-state {
+  border-color: var(--empty-border);
   background:
     linear-gradient(180deg, rgba(255, 246, 214, 0.78), rgba(255, 253, 247, 0.92)),
     var(--surface-soft);
@@ -295,6 +303,7 @@ input {
   margin: 0 0 8px;
   font-size: clamp(1.35rem, 3vw, 2rem);
   line-height: 1.2;
+  letter-spacing: -0.01em;
 }
 
 .onboarding-guide,
@@ -309,6 +318,7 @@ input {
   margin: 0;
   max-width: 52rem;
   color: var(--muted-strong);
+  font-weight: 700;
 }
 
 .empty-action {
@@ -322,12 +332,13 @@ input {
   gap: 8px;
   align-items: center;
   width: fit-content;
+  min-height: 44px;
   margin: 0;
   border: 2px solid var(--empty-border);
   border-radius: 999px;
-  padding: 7px 13px;
+  padding: 8px 15px;
   color: var(--empty-border);
-  background: #ffffff;
+  background: #fffaf0;
   font-weight: 900;
   font-size: clamp(1rem, 2.5vw, 1.25rem);
   letter-spacing: 0.04em;
@@ -465,6 +476,7 @@ button:focus-visible {
   color: var(--success-ink);
   background: var(--success-bg);
   line-height: 1.35;
+  overflow-wrap: anywhere;
 }
 
 .status-message::before {
@@ -505,7 +517,7 @@ button:focus-visible {
 
 .app-footer {
   box-shadow: none;
-  background: rgba(255, 253, 247, 0.8);
+  background: rgba(255, 253, 247, 0.9);
 }
 
 .app-footer p {
@@ -519,14 +531,16 @@ button:focus-visible {
 .load-error {
   color: var(--warning);
   border-color: var(--warning);
-  background: #fff7f3;
+  background:
+    linear-gradient(180deg, rgba(255, 247, 243, 0.94), rgba(255, 253, 247, 0.9)),
+    #fff7f3;
 }
 
 .loading-card {
   color: var(--muted-strong);
   text-align: center;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(231, 244, 247, 0.92)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(231, 244, 247, 0.94)),
     var(--accent-soft);
 }
 
@@ -535,14 +549,15 @@ button:focus-visible {
   min-height: min(420px, calc(100vh - 48px));
   align-content: center;
   justify-items: center;
-  gap: 14px;
+  gap: 16px;
+  padding: clamp(30px, 7vw, 56px);
   text-align: center;
 }
 
 .state-card::before {
   display: block;
-  width: 72px;
-  height: 8px;
+  width: 84px;
+  height: 10px;
   border-radius: 999px;
   background: var(--accent);
   content: "";
@@ -563,7 +578,7 @@ button:focus-visible {
 .state-description {
   margin: 0;
   max-width: 36rem;
-  color: var(--muted);
+  color: var(--muted-strong);
   font-weight: 800;
   font-size: clamp(1.2rem, 3vw, 1.7rem);
 }
@@ -588,6 +603,16 @@ button:focus-visible {
 
   .large-fact {
     min-height: 180px;
+  }
+
+  .planned-card,
+  .editor-card,
+  .premium-card,
+  .onboarding-card,
+  .app-footer,
+  .loading-card,
+  .load-error {
+    padding: clamp(20px, 6vw, 30px);
   }
 
   .language-controls {
