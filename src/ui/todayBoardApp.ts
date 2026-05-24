@@ -337,9 +337,12 @@ class TodayBoardApp {
     heading.id = "planned-item-editor-heading";
     const hint = element("p", "hint", text(locale, "editHint"));
     hint.id = "planned-item-hint";
+    const limit = element("p", "hint input-limit", formatCharacterLimit(locale, MAX_PLANNED_ITEM_LENGTH));
+    limit.id = "planned-item-limit";
     section.setAttribute("aria-labelledby", "planned-item-editor-heading");
     const form = document.createElement("form");
     form.className = "planned-form";
+    form.setAttribute("aria-describedby", "planned-item-hint planned-item-limit");
 
     const label = document.createElement("label");
     label.className = "input-label";
@@ -355,7 +358,7 @@ class TodayBoardApp {
     input.placeholder = text(locale, "plannedItemPlaceholder");
     input.autocomplete = "off";
     input.enterKeyHint = "done";
-    input.setAttribute("aria-describedby", "planned-item-hint planned-item-status");
+    input.setAttribute("aria-describedby", "planned-item-hint planned-item-limit planned-item-status");
 
     const saveButton = document.createElement("button");
     saveButton.type = "submit";
@@ -368,7 +371,7 @@ class TodayBoardApp {
       void this.savePlannedItem(input.value);
     });
 
-    section.append(heading, hint, form);
+    section.append(heading, hint, limit, form);
 
     const message = element("p", this.statusMessage ? "status-message" : "visually-hidden");
     message.id = "planned-item-status";
@@ -525,6 +528,14 @@ function formatPaymentSummary(locale: SupportedLocale, amountUsd: number): strin
   }
 
   return `${price} (${text(locale, "paymentMeta")}). ${text(locale, "paymentPending")}`;
+}
+
+function formatCharacterLimit(locale: SupportedLocale, maxLength: number): string {
+  if (locale === "ja") {
+    return `最大${maxLength}文字まで入力できます。`;
+  }
+
+  return `Up to ${maxLength} characters.`;
 }
 
 function getLanguageNavigationTarget(
