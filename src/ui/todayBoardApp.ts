@@ -1,6 +1,6 @@
 import { buildTodayViewModel, resolveLocale } from "../core/date";
 import { formatDayCount, formatUsdPrice } from "../core/format";
-import { normalizePlannedItemText } from "../core/plannedItem";
+import { MAX_PLANNED_ITEM_LENGTH, normalizePlannedItemText } from "../core/plannedItem";
 import { PREMIUM_PRICE_USD, STRIPE_PAYMENT_LINK, getPremiumStatus } from "../core/premium";
 import type { AppState, SupportedLocale } from "../core/types";
 import type { AppStorage } from "../storage/appStorage";
@@ -275,7 +275,7 @@ class TodayBoardApp {
     input.id = "planned-item";
     input.name = "planned-item";
     input.type = "text";
-    input.maxLength = 80;
+    input.maxLength = MAX_PLANNED_ITEM_LENGTH;
     input.value = this.state.plannedItem.text;
     input.autocomplete = "off";
     input.setAttribute("aria-describedby", "planned-item-hint planned-item-status");
@@ -433,7 +433,11 @@ function formatPaymentSummary(locale: SupportedLocale, amountUsd: number): strin
   return `${price} ${text(locale, "paymentMeta")} - ${text(locale, "paymentPending")}`;
 }
 
-function element(tagName: string, className = "", content = ""): HTMLElement {
+function element<TagName extends keyof HTMLElementTagNameMap>(
+  tagName: TagName,
+  className = "",
+  content = "",
+): HTMLElementTagNameMap[TagName] {
   const node = document.createElement(tagName);
   if (className) {
     node.className = className;
