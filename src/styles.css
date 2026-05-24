@@ -25,6 +25,7 @@
   --warning: #7c2d12;
   --border: #1f2933;
   --border-soft: #c7d0d8;
+  --border-muted: #d9cfc0;
   --focus: #ffbf47;
   --focus-outer: #101820;
   --card-radius: 28px;
@@ -41,6 +42,7 @@ body {
   min-height: 100vh;
   margin: 0;
   color: var(--ink);
+  font-size: 16px;
   line-height: 1.5;
   background:
     radial-gradient(circle at top left, rgba(11, 95, 115, 0.16), transparent 34rem),
@@ -56,7 +58,7 @@ input {
 #app {
   width: min(100%, 1040px);
   margin: 0 auto;
-  padding: clamp(14px, 4vw, 32px);
+  padding: clamp(16px, 4vw, 36px);
 }
 
 .skip-link {
@@ -99,7 +101,7 @@ input {
 
 .app-header {
   display: flex;
-  gap: 24px;
+  gap: clamp(18px, 4vw, 34px);
   align-items: flex-start;
   justify-content: space-between;
   padding: clamp(24px, 4vw, 38px);
@@ -160,12 +162,12 @@ input {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: clamp(16px, 3vw, 24px);
   margin-top: var(--card-gap);
-  padding: clamp(18px, 3vw, 28px);
+  padding: clamp(20px, 3vw, 32px);
 }
 
 .large-fact {
   display: flex;
-  min-height: 240px;
+  min-height: clamp(220px, 26vw, 280px);
   flex-direction: column;
   justify-content: center;
   border-radius: 22px;
@@ -216,8 +218,10 @@ input {
   display: flex;
   flex-wrap: wrap;
   gap: 14px;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
+  border-bottom: 2px solid var(--border-muted);
+  padding-bottom: clamp(14px, 2vw, 20px);
 }
 
 .section-title {
@@ -241,6 +245,9 @@ input {
 }
 
 .planned-value {
+  display: flex;
+  min-height: clamp(180px, 24vw, 300px);
+  align-items: center;
   margin: 0;
   padding: clamp(28px, 6vw, 56px);
   border: 4px solid var(--accent-dark);
@@ -253,10 +260,12 @@ input {
   font-size: clamp(3rem, 10vw, 7rem);
   line-height: 1.12;
   letter-spacing: -0.01em;
+  text-wrap: balance;
   overflow-wrap: anywhere;
 }
 
 .planned-value.empty {
+  min-height: 0;
   color: var(--ink);
   border-color: var(--empty-border);
   border-style: dashed;
@@ -291,6 +300,7 @@ input {
 
 .empty-description {
   margin: 0;
+  max-width: 52rem;
   color: var(--muted-strong);
 }
 
@@ -440,11 +450,23 @@ button:focus-visible {
   display: inline-flex;
   gap: 10px;
   align-items: center;
-  border: 2px solid var(--success-border);
-  border-radius: 999px;
-  padding: 10px 18px 10px 12px;
+  max-width: 100%;
+  border: 3px solid var(--success-border);
+  border-radius: 18px;
+  padding: 12px 18px 12px 14px;
   color: var(--success-ink);
   background: var(--success-bg);
+  line-height: 1.35;
+}
+
+.status-message::before {
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 0.82em;
+  height: 0.82em;
+  border-radius: 999px;
+  background: currentColor;
+  content: "";
 }
 
 .status-label {
@@ -505,7 +527,7 @@ button:focus-visible {
   min-height: min(420px, calc(100vh - 48px));
   align-content: center;
   justify-items: center;
-  gap: 12px;
+  gap: 14px;
   text-align: center;
 }
 
@@ -532,6 +554,7 @@ button:focus-visible {
 
 .state-description {
   margin: 0;
+  max-width: 36rem;
   color: var(--muted);
   font-weight: 800;
   font-size: clamp(1.2rem, 3vw, 1.7rem);
