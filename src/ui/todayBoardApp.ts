@@ -13,6 +13,9 @@ const translations = {
     weekdayLabel: "曜日",
     plannedItemLabel: "次の予定",
     noPlannedItem: "次の予定はまだ登録されていません。",
+    firstRunGuide: "はじめて開いたら、下の入力欄に次の予定を1件だけ入れて保存します。",
+    emptyStateDescription: "日付と曜日はこのまま確認できます。次の予定を入れると、ここに大きく表示されます。",
+    emptyStateAction: "次の予定を入力する",
     editTitle: "次の予定を登録",
     editHint: "1件だけ、短い言葉で登録できます。",
     plannedItemInputLabel: "次の予定",
@@ -45,6 +48,9 @@ const translations = {
     weekdayLabel: "Day of week",
     plannedItemLabel: "Next planned item",
     noPlannedItem: "No next planned item has been saved yet.",
+    firstRunGuide: "On first use, enter one next planned item below and save it.",
+    emptyStateDescription: "The date and day are ready to use. Add a next planned item to show it here in large text.",
+    emptyStateAction: "Enter next planned item",
     editTitle: "Save the next planned item",
     editHint: "Save one short item only.",
     plannedItemInputLabel: "Next planned item",
@@ -97,6 +103,7 @@ class TodayBoardApp {
   private state!: AppState;
   private statusMessage = "";
   private pendingFocusId: string | null = null;
+  private showFirstRunGuide = false;
 
   constructor(options: TodayBoardAppOptions) {
     this.root = options.root;
@@ -115,6 +122,7 @@ class TodayBoardApp {
 
     try {
       const storedState = await this.storage.load();
+      const isFirstOpen = !storedState.firstOpenedAt;
       const firstOpenedAt = storedState.firstOpenedAt ?? this.now().toISOString();
       const locale = storedState.locale ?? resolveLocale(this.preferredLanguage);
 
@@ -127,6 +135,7 @@ class TodayBoardApp {
         firstOpenedAt,
         locale,
       };
+      this.showFirstRunGuide = isFirstOpen && this.state.plannedItem.text.length === 0;
 
       this.render();
       this.scheduleRender?.(() => this.render(), 60_000);
@@ -151,6 +160,7 @@ class TodayBoardApp {
 
     this.root.replaceChildren(
       this.createHeader(locale),
+      ...(this.showFirstRunGuide ? [this.createFirstRunGuide(locale)] : []),
       this.createTodayBoard(locale, today.dateText, today.weekdayText),
       this.createPlannedItemCard(locale),
       this.createEditor(locale),
@@ -177,6 +187,13 @@ class TodayBoardApp {
 
     header.append(titleBlock, languageControls);
     return header;
+  }
+
+  private createFirstRunGuide(locale: SupportedLocale): HTMLElement {
+    const section = element("section", "onboarding-card");
+    section.setAttribute("aria-label", text(locale, "firstRunGuide"));
+    section.append(element("p", "onboarding-guide", text(locale, "firstRunGuide")));
+    return section;
   }
 
   private createLanguageButton(
@@ -216,7 +233,22 @@ class TodayBoardApp {
     const value = element("p", hasPlannedItem ? "planned-value" : "planned-value empty", plannedText);
 
     if (!hasPlannedItem) {
-      section.append(heading, element("p", "state-badge", text(locale, "emptyStateLabel")), value);
+      const description = element("p", "empty-description", text(locale, "emptyStateDescription"));
+      const action = document.createElement("button");
+      action.type = "button";
+      action.className = "secondary-button empty-action";
+      action.textContent = text(locale, "emptyStateAction");
+      action.addEventListener("click", () => {
+        document.getElementById("planned-item")?.focus();
+      });
+
+      section.append(
+        heading,
+        element("p", "state-badge", text(locale, "emptyStateLabel")),
+        value,
+        description,
+        action,
+      );
       return section;
     }
 
@@ -320,6 +352,7 @@ class TodayBoardApp {
       ...this.state,
       plannedItem,
     };
+    this.showFirstRunGuide = false;
     this.statusMessage = text(locale, "saved");
     this.render();
     this.pendingFocusId = "planned-item";

@@ -60,6 +60,7 @@ input {
 .planned-card,
 .editor-card,
 .premium-card,
+.onboarding-card,
 .app-footer,
 .loading-card,
 .load-error {
@@ -151,6 +152,7 @@ input {
 .planned-card,
 .editor-card,
 .premium-card,
+.onboarding-card,
 .app-footer,
 .loading-card,
 .load-error {
@@ -196,6 +198,28 @@ input {
 
 .planned-card.empty-state {
   background: #fffaf0;
+}
+
+.onboarding-card {
+  color: var(--accent-dark);
+  background: #e7f4f7;
+}
+
+.onboarding-guide,
+.empty-description {
+  margin: 0;
+  font-weight: 800;
+  font-size: clamp(1.2rem, 3vw, 1.75rem);
+  line-height: 1.55;
+}
+
+.empty-description {
+  margin-top: 18px;
+  color: var(--muted);
+}
+
+.empty-action {
+  margin-top: 18px;
 }
 
 .state-badge {
