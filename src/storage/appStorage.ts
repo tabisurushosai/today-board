@@ -1,5 +1,5 @@
 import type { AppState, AppStatePatch } from "../core/types";
-import { deserializeAppState, serializeAppStatePatch } from "./serialization";
+import { APP_STORAGE_KEY_LIST, deserializeAppState, serializeAppStatePatch } from "./serialization";
 import type { StorageAdapter } from "./storageAdapter";
 
 export interface AppStorage {
@@ -15,7 +15,7 @@ class SerializedAppStorage implements AppStorage {
   constructor(private readonly adapter: StorageAdapter) {}
 
   async load(): Promise<AppState> {
-    return deserializeAppState(await this.adapter.readAll());
+    return deserializeAppState(await this.adapter.read(APP_STORAGE_KEY_LIST));
   }
 
   async save(patch: AppStatePatch): Promise<void> {
