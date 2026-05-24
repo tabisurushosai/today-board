@@ -13,9 +13,10 @@ const translations = {
     weekdayLabel: "曜日",
     plannedItemLabel: "次の予定",
     noPlannedItem: "次の予定はまだ登録されていません。",
-    firstRunGuide: "はじめて使うときは、下の入力欄に次の予定を1件だけ入力して保存してください。",
-    emptyStateDescription: "日付と曜日はこのまま確認できます。次の予定を入力すると、ここに大きく表示されます。",
-    emptyStateAction: "次の予定を入力する",
+    firstRunGuideTitle: "はじめに",
+    firstRunGuide: "次の予定を1件だけ入れると、今日の表示と一緒に大きく確認できます。",
+    emptyStateDescription: "日付と曜日はこのまま確認できます。次の予定は1件だけ保存できます。",
+    emptyStateAction: "入力欄へ移動",
     editTitle: "次の予定を登録",
     editHint: "1件だけ、短い言葉で入力してください。",
     plannedItemInputLabel: "次の予定",
@@ -48,9 +49,10 @@ const translations = {
     weekdayLabel: "Day of the week",
     plannedItemLabel: "Next planned item",
     noPlannedItem: "No next planned item is saved yet.",
-    firstRunGuide: "To get started, enter one next planned item below and save it.",
-    emptyStateDescription: "The date and day of the week are ready to use. Add a next planned item to show it here in large text.",
-    emptyStateAction: "Add next planned item",
+    firstRunGuideTitle: "First step",
+    firstRunGuide: "Add one next planned item to see it in large text with today's display.",
+    emptyStateDescription: "The date and day of the week are ready to use. You can save one next planned item.",
+    emptyStateAction: "Go to input",
     editTitle: "Save next planned item",
     editHint: "Enter one short item only.",
     plannedItemInputLabel: "Next planned item",
@@ -192,8 +194,10 @@ class TodayBoardApp {
 
   private createFirstRunGuide(locale: SupportedLocale): HTMLElement {
     const section = element("section", "onboarding-card");
-    section.setAttribute("aria-label", text(locale, "firstRunGuide"));
-    section.append(element("p", "onboarding-guide", text(locale, "firstRunGuide")));
+    const heading = element("h2", "onboarding-title", text(locale, "firstRunGuideTitle"));
+    heading.id = "onboarding-heading";
+    section.setAttribute("aria-labelledby", "onboarding-heading");
+    section.append(heading, element("p", "onboarding-guide", text(locale, "firstRunGuide")));
     return section;
   }
 

@@ -225,6 +225,12 @@ input {
   background: var(--accent-soft);
 }
 
+.onboarding-title {
+  margin: 0 0 8px;
+  font-size: clamp(1.35rem, 3vw, 2rem);
+  line-height: 1.2;
+}
+
 .onboarding-guide,
 .empty-description {
   margin: 0;
