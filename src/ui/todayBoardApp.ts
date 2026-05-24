@@ -17,6 +17,7 @@ const translations = {
     firstRunGuide: "次の予定を1件だけ入れると、今日の表示と一緒に大きく確認できます。",
     emptyStateDescription: "日付と曜日はこのまま確認できます。次の予定は1件だけ保存できます。",
     emptyStateAction: "入力欄へ移動",
+    skipToEditor: "次の予定の入力欄へ移動",
     editTitle: "次の予定を登録",
     editHint: "1件だけ、短い言葉で入力してください。",
     plannedItemInputLabel: "次の予定",
@@ -53,6 +54,7 @@ const translations = {
     firstRunGuide: "Add one next planned item to see it in large text with today's display.",
     emptyStateDescription: "The date and day of the week are ready to use. You can save one next planned item.",
     emptyStateAction: "Go to input",
+    skipToEditor: "Skip to next planned item input",
     editTitle: "Save next planned item",
     editHint: "Enter one short item only.",
     plannedItemInputLabel: "Next planned item",
@@ -162,6 +164,7 @@ class TodayBoardApp {
     });
 
     this.root.replaceChildren(
+      this.createSkipLink(locale),
       this.createHeader(locale),
       ...(this.showFirstRunGuide ? [this.createFirstRunGuide(locale)] : []),
       this.createTodayBoard(locale, today.dateText, today.weekdayText),
@@ -182,14 +185,40 @@ class TodayBoardApp {
     const languageControls = element("div", "language-controls");
     const label = element("p", "control-label", text(locale, "language"));
     label.id = "language-controls-label";
-    languageControls.setAttribute("role", "group");
+    languageControls.setAttribute("role", "radiogroup");
     languageControls.setAttribute("aria-labelledby", "language-controls-label");
     const jaButton = this.createLanguageButton(locale, "ja", text(locale, "japanese"));
     const enButton = this.createLanguageButton(locale, "en", text(locale, "english"));
+    languageControls.addEventListener("keydown", (event) => {
+      const nextLocale = getLanguageNavigationTarget(locale, event.key);
+      if (!nextLocale) {
+        return;
+      }
+
+      event.preventDefault();
+      if (nextLocale === locale) {
+        document.getElementById(`language-${nextLocale}`)?.focus();
+        return;
+      }
+
+      void this.updateLocale(nextLocale);
+    });
     languageControls.append(label, jaButton, enButton);
 
     header.append(titleBlock, languageControls);
     return header;
+  }
+
+  private createSkipLink(locale: SupportedLocale): HTMLAnchorElement {
+    const link = document.createElement("a");
+    link.className = "skip-link";
+    link.href = "#planned-item";
+    link.textContent = text(locale, "skipToEditor");
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      document.getElementById("planned-item")?.focus();
+    });
+    return link;
   }
 
   private createFirstRunGuide(locale: SupportedLocale): HTMLElement {
@@ -211,7 +240,9 @@ class TodayBoardApp {
     button.type = "button";
     button.className = "secondary-button";
     button.textContent = label;
-    button.setAttribute("aria-pressed", String(currentLocale === nextLocale));
+    button.setAttribute("role", "radio");
+    button.setAttribute("aria-checked", String(currentLocale === nextLocale));
+    button.tabIndex = currentLocale === nextLocale ? 0 : -1;
     button.addEventListener("click", () => {
       void this.updateLocale(nextLocale);
     });
@@ -451,6 +482,23 @@ function formatPaymentSummary(locale: SupportedLocale, amountUsd: number): strin
   }
 
   return `${price} ${text(locale, "paymentMeta")}. ${text(locale, "paymentPending")}`;
+}
+
+function getLanguageNavigationTarget(
+  currentLocale: SupportedLocale,
+  key: string,
+): SupportedLocale | null {
+  if (key === "Home") {
+    return "ja";
+  }
+  if (key === "End") {
+    return "en";
+  }
+  if (!["ArrowLeft", "ArrowUp", "ArrowRight", "ArrowDown"].includes(key)) {
+    return null;
+  }
+
+  return currentLocale === "ja" ? "en" : "ja";
 }
 
 function element<TagName extends keyof HTMLElementTagNameMap>(
