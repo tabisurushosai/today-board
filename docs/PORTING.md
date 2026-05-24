@@ -42,22 +42,25 @@ iOS / Android wrapper では、次の raw 保存 adapter を実装して
 `AppStorage` です。
 
 ```ts
-type StorageRecord = Record<string, unknown>;
-type StoragePatch = Record<string, string | null>;
+type StorageKey = string;
+type StorageValue = string | null;
+type StorageRecord = Readonly<Partial<Record<StorageKey, unknown>>>;
+type StoragePatch = Readonly<Partial<Record<StorageKey, StorageValue>>>;
 
 interface StorageAdapter {
-  read(keys: readonly string[]): Promise<StorageRecord>;
+  read(keys: readonly StorageKey[]): Promise<StorageRecord>;
   write(patch: StoragePatch): Promise<void>;
 }
 ```
 
 `read(keys)` は渡されたキーの現在値を返します。存在しないキーは省略して
-構いません。`write(patch)` は patch に含まれるキーだけを保存します。同じ
-key/value 形状で保存できる場合は、`src/storage/serialization.ts` の
-`APP_STORAGE_KEY_LIST`、`deserializeAppState`、`serializeAppStatePatch` を
-再利用してください。ネイティブ保存層の物理的な backend が異なる場合も、
-既存データを core や UI の変更なしで移行できるよう、論理キーと値の意味は
-変えません。
+構いません。`write(patch)` は patch に含まれるキーだけを保存します。
+`StorageValue` の `null` は有効な保存値なので、アダプタ側で削除命令へ
+読み替えないでください。同じ key/value 形状で保存できる場合は、
+`src/storage/serialization.ts` の `APP_STORAGE_KEY_LIST`、`deserializeAppState`、
+`serializeAppStatePatch` を再利用してください。ネイティブ保存層の物理的な
+backend が異なる場合も、既存データを core や UI の変更なしで移行できるよう、
+論理キーと値の意味は変えません。
 
 ## Chrome 拡張の entry point
 
@@ -80,7 +83,9 @@ key/value 形状で保存できる場合は、`src/storage/serialization.ts` の
   対応できれば十分です。移植先で他アプリ領域や backend 全体を走査する必要は
   ありません。
 - 保存値は既存と同じ論理 key/value のまま扱います。日付文字列は現在と同じ
-  ISO 文字列を保存し、空文字は未保存として扱います。
+  ISO 文字列を保存し、空文字は未保存として扱います。`null` は
+  `premiumPurchasedAt` など「値なし」を保存するために使うので、未存在キーとは
+  区別して保持してください。
 - UI を差し替える場合も、`AppStorage`、`preferredLanguage`、`now`、
   `scheduleRender` のような小さなサービスを entry point で注入し、純ロジックを
   platform shell へ寄せないでください。

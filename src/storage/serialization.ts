@@ -1,5 +1,5 @@
 import type { AppState, AppStatePatch, PlannedItem, SupportedLocale } from "../core/types";
-import type { StoragePatch, StorageRecord } from "./storageAdapter";
+import type { StorageKey, StoragePatch, StorageRecord, StorageValue } from "./storageAdapter";
 
 export const APP_STORAGE_KEYS = {
   plannedItemText: "plannedItemText",
@@ -27,7 +27,7 @@ export function deserializeAppState(items: StorageRecord): AppState {
 }
 
 export function serializeAppStatePatch(patch: AppStatePatch): StoragePatch {
-  const serialized: StoragePatch = {};
+  const serialized: Record<StorageKey, StorageValue> = {};
 
   if (patch.plannedItem) {
     serialized[APP_STORAGE_KEYS.plannedItemText] = patch.plannedItem.text;
