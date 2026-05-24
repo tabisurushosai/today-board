@@ -1,4 +1,4 @@
-import type { SerializedAppStatePatch, StorageAdapter, StorageRecord } from "./appStorage";
+import type { StorageAdapter, StoragePatch, StorageRecord } from "./storageAdapter";
 
 export class ChromeLocalStorageAdapter implements StorageAdapter {
   constructor(private readonly storageArea: chrome.storage.StorageArea = chrome.storage.local) {}
@@ -7,7 +7,7 @@ export class ChromeLocalStorageAdapter implements StorageAdapter {
     return chromeGetAll(this.storageArea);
   }
 
-  async write(patch: SerializedAppStatePatch): Promise<void> {
+  async write(patch: StoragePatch): Promise<void> {
     await chromeSet(this.storageArea, patch);
   }
 }
@@ -26,7 +26,7 @@ function chromeGetAll(storageArea: chrome.storage.StorageArea): Promise<StorageR
   });
 }
 
-function chromeSet(storageArea: chrome.storage.StorageArea, items: SerializedAppStatePatch): Promise<void> {
+function chromeSet(storageArea: chrome.storage.StorageArea, items: StoragePatch): Promise<void> {
   return new Promise((resolve, reject) => {
     storageArea.set(items, () => {
       const error = chrome.runtime.lastError;

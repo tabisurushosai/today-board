@@ -5,7 +5,7 @@
   "type": "module",
   "description": "Large-text orientation board Chrome extension for today's date, day of week, and next planned item.",
   "scripts": {
-    "build": "tsc -p tsconfig.core.json --noEmit && tsc --noEmit && vite build",
+    "build": "tsc -p tsconfig.portable.json --noEmit && tsc --noEmit && vite build",
     "dev": "vite --host 0.0.0.0",
     "generate:icons": "node scripts/generate-icons.mjs"
   },
