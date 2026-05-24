@@ -1,4 +1,3 @@
-import { createDefaultState } from "../core/state";
 import type { AppState, AppStatePatch, PlannedItem, SupportedLocale } from "../core/types";
 import type { StoragePatch, StorageRecord } from "./storageAdapter";
 
@@ -11,10 +10,7 @@ export const APP_STORAGE_KEYS = {
 } as const;
 
 export function deserializeAppState(items: StorageRecord): AppState {
-  const defaultState = createDefaultState();
-
   return {
-    ...defaultState,
     plannedItem: deserializePlannedItem(items),
     firstOpenedAt: normalizeStoredString(items[APP_STORAGE_KEYS.firstOpenedAt]),
     premiumPurchasedAt: normalizeStoredString(items[APP_STORAGE_KEYS.premiumPurchasedAt]),
