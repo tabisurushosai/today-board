@@ -31,6 +31,7 @@ const translations = {
     loading: "保存済みの内容を確認しています。",
     emptyStateLabel: "未登録",
     language: "表示言語",
+    languageKeyboardHint: "矢印キー、Home、Endキーでも表示言語を切り替えられます。",
     japanese: "日本語",
     english: "英語",
     premiumTitle: "プレミアム",
@@ -70,6 +71,7 @@ const translations = {
     loading: "Checking saved data.",
     emptyStateLabel: "Not saved",
     language: "Display language",
+    languageKeyboardHint: "Use arrow keys, Home, or End to switch the display language.",
     japanese: "日本語",
     english: "English",
     premiumTitle: "Premium",
@@ -197,8 +199,11 @@ class TodayBoardApp {
     const languageControls = element("div", "language-controls");
     const label = element("p", "control-label", text(locale, "language"));
     label.id = "language-controls-label";
+    const keyboardHint = element("p", "visually-hidden", text(locale, "languageKeyboardHint"));
+    keyboardHint.id = "language-controls-hint";
     languageControls.setAttribute("role", "radiogroup");
     languageControls.setAttribute("aria-labelledby", "language-controls-label");
+    languageControls.setAttribute("aria-describedby", "language-controls-hint");
     const jaButton = this.createLanguageButton(locale, "ja", text(locale, "japanese"));
     const enButton = this.createLanguageButton(locale, "en", text(locale, "english"));
     languageControls.addEventListener("keydown", (event) => {
@@ -215,7 +220,7 @@ class TodayBoardApp {
 
       void this.updateLocale(nextLocale);
     });
-    languageControls.append(label, jaButton, enButton);
+    languageControls.append(label, keyboardHint, jaButton, enButton);
 
     header.append(titleBlock, languageControls);
     return header;
@@ -282,10 +287,13 @@ class TodayBoardApp {
       hasPlannedItem ? "state-badge state-badge-success" : "state-badge",
       text(locale, hasPlannedItem ? "savedStateLabel" : "emptyStateLabel"),
     );
+    stateBadge.id = "planned-item-state";
     const header = element("div", "planned-card-header");
     header.append(heading, stateBadge);
     const plannedText = hasPlannedItem ? this.state.plannedItem.text : text(locale, "noPlannedItem");
     const value = element("p", hasPlannedItem ? "planned-value" : "planned-value empty", plannedText);
+    value.id = "planned-item-value";
+    section.setAttribute("aria-describedby", "planned-item-state planned-item-value");
 
     if (!hasPlannedItem) {
       const description = element("p", "empty-description", text(locale, "emptyStateDescription"));
@@ -471,9 +479,11 @@ class TodayBoardApp {
 function createLargeFact(idPrefix: string, label: string, value: string): HTMLElement {
   const wrapper = element("article", "large-fact");
   const labelNode = element("p", "fact-label", label);
+  const valueNode = element("p", "fact-value", value);
   labelNode.id = `${idPrefix}-label`;
-  wrapper.setAttribute("aria-labelledby", `${idPrefix}-label`);
-  wrapper.append(labelNode, element("p", "fact-value", value));
+  valueNode.id = `${idPrefix}-value`;
+  wrapper.setAttribute("aria-labelledby", `${idPrefix}-label ${idPrefix}-value`);
+  wrapper.append(labelNode, valueNode);
   return wrapper;
 }
 
