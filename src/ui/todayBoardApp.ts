@@ -13,11 +13,11 @@ const translations = {
     dateLabel: "今日の日付",
     weekdayLabel: "曜日",
     plannedItemLabel: "次の予定",
-    noPlannedItem: "次の予定はまだ保存されていません。",
-    firstRunGuideTitle: "はじめに",
-    firstRunGuide: "下の入力欄に次の予定を1件だけ入力し、保存してください。",
-    emptyStateDescription: "日付と曜日はこのまま確認できます。次の予定が未登録の場合は、下の入力欄から1件だけ保存できます。",
-    emptyStateAction: "次の予定を入力する",
+    noPlannedItem: "ここに次の予定が大きく表示されます。",
+    firstRunGuideTitle: "一言ガイド",
+    firstRunGuide: "最初は、下の「入力欄へ進む」から次の予定を1件だけ保存します。",
+    emptyStateDescription: "日付と曜日はこのまま確認できます。予定を保存すると、この枠が大きな予定表示に切り替わります。",
+    emptyStateAction: "入力欄へ進む",
     skipToEditor: "次の予定の入力欄へ移動",
     editTitle: "次の予定を保存",
     editHint: "予定は1件だけ、短い言葉で入力してください。",
@@ -53,11 +53,11 @@ const translations = {
     dateLabel: "Today's date",
     weekdayLabel: "Day of the week",
     plannedItemLabel: "Next planned item",
-    noPlannedItem: "No next planned item has been saved yet.",
-    firstRunGuideTitle: "Getting started",
-    firstRunGuide: "Enter one next planned item below, then save it.",
-    emptyStateDescription: "The date and day of the week are ready to view. If no next planned item is saved, you can save one from the input below.",
-    emptyStateAction: "Enter the next planned item",
+    noPlannedItem: "Your next planned item will appear here in large text.",
+    firstRunGuideTitle: "Quick guide",
+    firstRunGuide: "Start with “Go to the input” below, then save one next planned item.",
+    emptyStateDescription: "The date and day of the week are ready to view. After you save an item, this area changes to the large planned-item display.",
+    emptyStateAction: "Go to the input",
     skipToEditor: "Skip to next planned item input",
     editTitle: "Save next planned item",
     editHint: "Enter only one short item.",
@@ -307,6 +307,7 @@ class TodayBoardApp {
       action.addEventListener("click", () => {
         document.getElementById("planned-item")?.focus();
       });
+      section.setAttribute("aria-describedby", "planned-item-state planned-item-value empty-state-description");
 
       section.append(
         header,
