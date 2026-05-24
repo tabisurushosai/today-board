@@ -11,14 +11,15 @@ Android シェルでも再利用できるように、アプリのロジックを
     を import しないでください。
   - 日付、Premium、予定、状態の helper は決定的にし、どの JavaScript
     ランタイムからでも呼べる状態を維持します。
-  - `npm run build` は `tsconfig.core.json` で `src/core/**/*.ts` を
-    DOM / Chrome 型なしでも型検査します。移植性を保つため、この確認を
-    外さないでください。
+  - `npm run build` は `tsconfig.portable.json` で `src/core/**/*.ts` と
+    platform-neutral な `src/storage/` を DOM / Chrome 型なしでも型検査します。
+    移植性を保つため、この確認を外さないでください。
 - `src/storage/` は保存アダプタとシリアライズを担当します。
   - UI コードは `src/storage/appStorage.ts` の `AppStorage` interface に
     依存します。
   - プラットフォーム固有コードはアプリ状態を直接読み書きせず、
-    `StorageAdapter` で raw key/value の読み書きだけを実装します。
+    `src/storage/storageAdapter.ts` の `StorageAdapter` で raw key/value の
+    読み書きだけを実装します。
     `createAppStorage(adapter)` が既存の保存データ形式と `AppState` の
     相互変換を担当します。
   - `serialization.ts` は現在の保存キー
@@ -39,11 +40,11 @@ iOS / Android wrapper では、次の raw 保存 adapter を実装して
 
 ```ts
 type StorageRecord = Record<string, unknown>;
-type SerializedAppStatePatch = Record<string, string | null>;
+type StoragePatch = Record<string, string | null>;
 
 interface StorageAdapter {
   readAll(): Promise<StorageRecord>;
-  write(patch: SerializedAppStatePatch): Promise<void>;
+  write(patch: StoragePatch): Promise<void>;
 }
 ```
 

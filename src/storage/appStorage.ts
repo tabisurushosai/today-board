@@ -1,13 +1,6 @@
 import type { AppState, AppStatePatch } from "../core/types";
 import { deserializeAppState, serializeAppStatePatch } from "./serialization";
-
-export type StorageRecord = Record<string, unknown>;
-export type SerializedAppStatePatch = Record<string, string | null>;
-
-export interface StorageAdapter {
-  readAll(): Promise<StorageRecord>;
-  write(patch: SerializedAppStatePatch): Promise<void>;
-}
+import type { StorageAdapter } from "./storageAdapter";
 
 export interface AppStorage {
   load(): Promise<AppState>;
