@@ -18,6 +18,7 @@
   "license": "UNLICENSED",
   "devDependencies": {
     "@types/chrome": "latest",
+    "@types/node": "^25.9.1",
     "typescript": "latest",
     "vite": "latest"
   }
