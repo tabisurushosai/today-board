@@ -14,6 +14,7 @@ export function formatUsdPrice(amount: number, locale: SupportedLocale): string 
   return new Intl.NumberFormat(toIntlLocale(locale), {
     style: "currency",
     currency: "USD",
+    currencyDisplay: locale === "ja" ? "name" : "narrowSymbol",
     maximumFractionDigits: 0,
   }).format(amount);
 }
