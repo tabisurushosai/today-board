@@ -239,6 +239,8 @@ class TodayBoardApp {
       hasPlannedItem ? "state-badge state-badge-success" : "state-badge",
       text(locale, hasPlannedItem ? "savedStateLabel" : "emptyStateLabel"),
     );
+    const header = element("div", "planned-card-header");
+    header.append(heading, stateBadge);
     const plannedText = hasPlannedItem ? this.state.plannedItem.text : text(locale, "noPlannedItem");
     const value = element("p", hasPlannedItem ? "planned-value" : "planned-value empty", plannedText);
 
@@ -254,8 +256,7 @@ class TodayBoardApp {
       });
 
       section.append(
-        heading,
-        stateBadge,
+        header,
         value,
         description,
         action,
@@ -263,7 +264,7 @@ class TodayBoardApp {
       return section;
     }
 
-    section.append(heading, stateBadge, value);
+    section.append(header, value);
     return section;
   }
 

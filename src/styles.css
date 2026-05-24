@@ -13,16 +13,18 @@
   --surface-soft: #fff8e8;
   --ink: #101820;
   --muted: #4b5563;
+  --muted-strong: #374151;
   --accent: #0b5f73;
   --accent-dark: #063f4d;
   --accent-soft: #e7f4f7;
-  --empty-bg: #fff3bf;
-  --empty-border: #8a5a00;
+  --empty-bg: #fff6d6;
+  --empty-border: #784800;
   --success-ink: #16452a;
   --success-bg: #dff3e6;
   --success-border: #287a46;
   --warning: #7c2d12;
   --border: #1f2933;
+  --border-soft: #c7d0d8;
   --focus: #ffbf47;
   --focus-outer: #101820;
   --card-radius: 28px;
@@ -78,6 +80,9 @@ input {
   align-items: flex-start;
   justify-content: space-between;
   padding: clamp(24px, 4vw, 38px);
+  background:
+    linear-gradient(135deg, rgba(231, 244, 247, 0.9), rgba(255, 253, 247, 0.86) 45%),
+    var(--surface);
 }
 
 .app-header > div:first-child {
@@ -112,6 +117,10 @@ input {
   align-items: center;
   justify-content: flex-end;
   min-width: 190px;
+  border: 2px solid var(--border-soft);
+  border-radius: 22px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.62);
 }
 
 .control-label {
@@ -120,6 +129,7 @@ input {
   font-weight: 700;
   font-size: 1rem;
   text-align: right;
+  color: var(--muted-strong);
 }
 
 .today-board {
@@ -138,7 +148,9 @@ input {
   border-radius: 22px;
   padding: clamp(24px, 5vw, 48px);
   color: #ffffff;
-  background: var(--accent-dark);
+  background:
+    linear-gradient(150deg, rgba(255, 255, 255, 0.1), transparent 42%),
+    var(--accent-dark);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
 }
 
@@ -171,7 +183,18 @@ input {
 
 .planned-card {
   display: grid;
-  gap: 16px;
+  gap: clamp(14px, 2.5vw, 22px);
+  background:
+    linear-gradient(180deg, rgba(231, 244, 247, 0.42), transparent 13rem),
+    var(--surface);
+}
+
+.planned-card-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: flex-start;
+  justify-content: space-between;
 }
 
 .section-title {
@@ -200,7 +223,9 @@ input {
   border: 4px solid var(--accent-dark);
   border-radius: 24px;
   color: #ffffff;
-  background: var(--accent);
+  background:
+    linear-gradient(160deg, rgba(255, 255, 255, 0.13), transparent 36%),
+    var(--accent);
   font-weight: 900;
   font-size: clamp(3rem, 10vw, 7rem);
   line-height: 1.12;
@@ -217,7 +242,9 @@ input {
 }
 
 .planned-card.empty-state {
-  background: var(--surface-soft);
+  background:
+    linear-gradient(180deg, rgba(255, 246, 214, 0.78), rgba(255, 253, 247, 0.92)),
+    var(--surface-soft);
 }
 
 .onboarding-card {
@@ -241,7 +268,7 @@ input {
 
 .empty-description {
   margin: 0;
-  color: var(--muted);
+  color: var(--muted-strong);
 }
 
 .empty-action {
@@ -251,16 +278,28 @@ input {
 
 .state-badge {
   display: inline-flex;
+  flex-shrink: 0;
+  gap: 8px;
+  align-items: center;
   width: fit-content;
   margin: 0;
   border: 2px solid var(--empty-border);
   border-radius: 999px;
-  padding: 6px 12px;
+  padding: 7px 13px;
   color: var(--empty-border);
   background: #ffffff;
   font-weight: 900;
   font-size: clamp(1rem, 2.5vw, 1.25rem);
   letter-spacing: 0.04em;
+}
+
+.state-badge::before {
+  display: block;
+  width: 0.64em;
+  height: 0.64em;
+  border-radius: 999px;
+  background: currentColor;
+  content: "";
 }
 
 .state-badge-success {
@@ -292,6 +331,10 @@ input[type="text"] {
   background: var(--surface-strong);
   font-size: clamp(1.4rem, 3.5vw, 2.4rem);
   line-height: 1.2;
+}
+
+input[type="text"]::placeholder {
+  color: var(--muted);
 }
 
 input[type="text"]:focus,
@@ -327,8 +370,25 @@ button:focus-visible {
   font-size: 1.05rem;
 }
 
+.primary-button:hover,
+.secondary-button:hover {
+  border-color: var(--ink);
+}
+
+.primary-button:hover {
+  background: var(--accent);
+}
+
+.secondary-button:hover {
+  background: var(--accent-soft);
+}
+
 .secondary-button[aria-pressed="true"] {
   color: #ffffff;
+  background: var(--accent-dark);
+}
+
+.secondary-button[aria-pressed="true"]:hover {
   background: var(--accent-dark);
 }
 
@@ -397,9 +457,11 @@ button:focus-visible {
 }
 
 .loading-card {
-  color: var(--muted);
+  color: var(--muted-strong);
   text-align: center;
-  background: var(--accent-soft);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(231, 244, 247, 0.92)),
+    var(--accent-soft);
 }
 
 .state-card {
