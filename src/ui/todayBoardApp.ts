@@ -101,7 +101,7 @@ class TodayBoardApp {
   private readonly storage: AppStorage;
   private readonly preferredLanguage: string | null;
   private readonly now: () => Date;
-  private readonly scheduleRender?: ScheduleRender;
+  private readonly scheduleRender: ScheduleRender | undefined;
   private state!: AppState;
   private statusMessage = "";
   private pendingFocusId: string | null = null;
