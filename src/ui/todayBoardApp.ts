@@ -1,5 +1,5 @@
 import { buildTodayViewModel, resolveLocale } from "../core/date";
-import { formatDayCount, formatDayCountAdjective, formatUsdPrice } from "../core/format";
+import { formatDayCount, formatDayCountAdjective, formatInteger, formatUsdPrice } from "../core/format";
 import { MAX_PLANNED_ITEM_LENGTH, normalizePlannedItemText } from "../core/plannedItem";
 import { PREMIUM_PRICE_USD, STRIPE_PAYMENT_LINK, TRIAL_DAYS, getPremiumStatus } from "../core/premium";
 import type { PremiumStatus } from "../core/premium";
@@ -9,20 +9,20 @@ import type { AppStorage } from "../storage/appStorage";
 const translations = {
   ja: {
     appTitle: "きょうボード",
-    purpose: "今日の日付、曜日、次の予定を大きな文字で表示します。",
+    purpose: "今日の日付・曜日・次の予定を大きな文字で表示します。",
     dateLabel: "今日の日付",
     weekdayLabel: "曜日",
     plannedItemLabel: "次の予定",
-    noPlannedItem: "ここに次の予定が大きく表示されます。",
+    noPlannedItem: "次の予定を保存すると、ここに大きく表示されます。",
     firstRunGuideTitle: "一言ガイド",
-    firstRunGuide: "最初は、下の「入力欄へ進む」から次の予定を1件だけ保存します。",
-    emptyStateDescription: "日付と曜日はこのまま確認できます。予定を保存すると、この枠が大きな予定表示に切り替わります。",
+    firstRunGuide: "まずは下の「入力欄へ進む」から、次の予定を1件だけ保存します。",
+    emptyStateDescription: "日付と曜日はこのまま確認できます。予定を保存すると、この枠に大きく表示されます。",
     emptyStateAction: "入力欄へ進む",
     skipToEditor: "次の予定の入力欄へ移動",
     editTitle: "次の予定を保存",
-    editHint: "予定は1件だけ、短い言葉で入力してください。",
+    editHint: "予定は1件だけ、短い言葉で入力します。",
     plannedItemInputLabel: "次の予定",
-    plannedItemPlaceholder: "例: 15時 外出",
+    plannedItemPlaceholder: "例: 15:00 外出",
     save: "保存",
     saved: "保存しました。",
     savedStateLabel: "保存済み",
@@ -42,24 +42,24 @@ const translations = {
     premiumNote: "プレミアムが無効でも、日付・曜日・次の予定の基本表示は使えます。",
     paymentPending: "支払いリンクは本番環境の設定待ちです。",
     paymentMeta: "買い切り",
-    privacyNote: "ネットワーク通信は行いません。データはこの端末内にのみ保存されます。",
+    privacyNote: "ネットワーク通信は行いません。データはこの端末内にだけ保存されます。",
     footerScope: "この拡張機能は、日付・曜日・次の予定の表示だけを行います。",
     loadErrorTitle: "読み込みに失敗しました",
     loadError: "保存データを読み込めませんでした。拡張機能を再読み込みしてください。",
   },
   en: {
     appTitle: "Today Board",
-    purpose: "Shows today's date, day of the week, and the next planned item in large text.",
+    purpose: "Shows today's date, weekday, and next planned item in large text.",
     dateLabel: "Today's date",
-    weekdayLabel: "Day of the week",
+    weekdayLabel: "Weekday",
     plannedItemLabel: "Next planned item",
-    noPlannedItem: "Your next planned item will appear here in large text.",
+    noPlannedItem: "Save a planned item to show it here in large text.",
     firstRunGuideTitle: "Quick guide",
-    firstRunGuide: "Start with “Go to the input” below, then save one next planned item.",
-    emptyStateDescription: "The date and day of the week are ready to view. After you save an item, this area changes to the large planned-item display.",
-    emptyStateAction: "Go to the input",
-    skipToEditor: "Skip to next planned item input",
-    editTitle: "Save next planned item",
+    firstRunGuide: "Start by choosing “Go to input” below, then save one next planned item.",
+    emptyStateDescription: "The date and weekday are ready to view. After you save an item, it appears in this large display area.",
+    emptyStateAction: "Go to input",
+    skipToEditor: "Skip to the next planned item input",
+    editTitle: "Save the next planned item",
     editHint: "Enter only one short item.",
     plannedItemInputLabel: "Next planned item",
     plannedItemPlaceholder: "Example: 3:00 PM outing",
@@ -68,24 +68,24 @@ const translations = {
     savedStateLabel: "Saved",
     statusSuccessLabel: "Done",
     loadingTitle: "Loading",
-    loading: "Checking saved data.",
+    loading: "Loading saved data.",
     emptyStateLabel: "Not saved",
     language: "Display language",
     languageKeyboardHint: "Use arrow keys, Home, or End to switch the display language.",
     japanese: "日本語",
     english: "English",
     premiumTitle: "Premium",
-    trialActive: "trial is active",
-    trialExpired: "Trial ended",
+    trialActive: "trial active",
+    trialExpired: "Trial has ended",
     premiumActive: "Premium is active",
-    trialRemaining: "left",
-    premiumNote: "The date, day of the week, and next planned item still work when Premium is inactive.",
-    paymentPending: "Payment link is not configured for production yet.",
+    trialRemaining: "remaining",
+    premiumNote: "Date, weekday, and next planned item still work when Premium is inactive.",
+    paymentPending: "Payment link is awaiting production setup.",
     paymentMeta: "one-time purchase",
-    privacyNote: "No network communication is used. Data is saved only to this device's local storage.",
-    footerScope: "This extension only displays the date, day of the week, and next planned item.",
-    loadErrorTitle: "Data could not be loaded",
-    loadError: "Saved data could not be loaded. Please reload the extension.",
+    privacyNote: "No network communication is used. Data is saved only on this device.",
+    footerScope: "This extension only displays the date, weekday, and next planned item.",
+    loadErrorTitle: "Could not load data",
+    loadError: "Could not load saved data. Please reload the extension.",
   },
 } as const;
 
@@ -531,11 +531,12 @@ function formatPaymentSummary(locale: SupportedLocale, amountUsd: number): strin
 }
 
 function formatCharacterLimit(locale: SupportedLocale, maxLength: number): string {
+  const formattedLength = formatInteger(maxLength, locale);
   if (locale === "ja") {
-    return `最大${maxLength}文字まで入力できます。`;
+    return `最大${formattedLength}文字まで入力できます。`;
   }
 
-  return `Up to ${maxLength} characters.`;
+  return `Up to ${formattedLength} characters.`;
 }
 
 function getLanguageNavigationTarget(
