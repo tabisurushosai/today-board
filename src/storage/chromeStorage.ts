@@ -3,8 +3,8 @@ import type { StorageAdapter, StoragePatch, StorageRecord } from "./storageAdapt
 export class ChromeLocalStorageAdapter implements StorageAdapter {
   constructor(private readonly storageArea: chrome.storage.StorageArea = chrome.storage.local) {}
 
-  async readAll(): Promise<StorageRecord> {
-    return chromeGetAll(this.storageArea);
+  async read(keys: readonly string[]): Promise<StorageRecord> {
+    return chromeGet(this.storageArea, keys);
   }
 
   async write(patch: StoragePatch): Promise<void> {
@@ -12,9 +12,9 @@ export class ChromeLocalStorageAdapter implements StorageAdapter {
   }
 }
 
-function chromeGetAll(storageArea: chrome.storage.StorageArea): Promise<StorageRecord> {
+function chromeGet(storageArea: chrome.storage.StorageArea, keys: readonly string[]): Promise<StorageRecord> {
   return new Promise((resolve, reject) => {
-    storageArea.get(null, (items: StorageRecord) => {
+    storageArea.get([...keys], (items: StorageRecord) => {
       const error = chrome.runtime.lastError;
       if (error) {
         reject(new Error(error.message));

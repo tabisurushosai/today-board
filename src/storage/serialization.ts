@@ -9,6 +9,14 @@ export const APP_STORAGE_KEYS = {
   locale: "locale",
 } as const;
 
+export const APP_STORAGE_KEY_LIST = [
+  APP_STORAGE_KEYS.plannedItemText,
+  APP_STORAGE_KEYS.plannedItemUpdatedAt,
+  APP_STORAGE_KEYS.firstOpenedAt,
+  APP_STORAGE_KEYS.premiumPurchasedAt,
+  APP_STORAGE_KEYS.locale,
+] as const;
+
 export function deserializeAppState(items: StorageRecord): AppState {
   return {
     plannedItem: deserializePlannedItem(items),
