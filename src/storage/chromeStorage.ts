@@ -1,17 +1,14 @@
-import type { AppState, AppStatePatch } from "../core/types";
-import type { AppStorage, SerializedAppStatePatch, StorageRecord } from "./appStorage";
-import { deserializeAppState, serializeAppStatePatch } from "./serialization";
+import type { SerializedAppStatePatch, StorageAdapter, StorageRecord } from "./appStorage";
 
-export class ChromeLocalStorageAdapter implements AppStorage {
+export class ChromeLocalStorageAdapter implements StorageAdapter {
   constructor(private readonly storageArea: chrome.storage.StorageArea = chrome.storage.local) {}
 
-  async load(): Promise<AppState> {
-    const items = await chromeGetAll(this.storageArea);
-    return deserializeAppState(items);
+  async readAll(): Promise<StorageRecord> {
+    return chromeGetAll(this.storageArea);
   }
 
-  async save(patch: AppStatePatch): Promise<void> {
-    await chromeSet(this.storageArea, serializeAppStatePatch(patch));
+  async write(patch: SerializedAppStatePatch): Promise<void> {
+    await chromeSet(this.storageArea, patch);
   }
 }
 
