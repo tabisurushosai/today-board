@@ -229,6 +229,11 @@ class TodayBoardApp {
     const heading = element("h2", "section-title", text(locale, "plannedItemLabel"));
     heading.id = "planned-item-heading";
     section.setAttribute("aria-labelledby", "planned-item-heading");
+    const stateBadge = element(
+      "p",
+      hasPlannedItem ? "state-badge state-badge-success" : "state-badge",
+      text(locale, hasPlannedItem ? "savedStateLabel" : "emptyStateLabel"),
+    );
     const plannedText = hasPlannedItem ? this.state.plannedItem.text : text(locale, "noPlannedItem");
     const value = element("p", hasPlannedItem ? "planned-value" : "planned-value empty", plannedText);
 
@@ -244,7 +249,7 @@ class TodayBoardApp {
 
       section.append(
         heading,
-        element("p", "state-badge", text(locale, "emptyStateLabel")),
+        stateBadge,
         value,
         description,
         action,
@@ -252,7 +257,7 @@ class TodayBoardApp {
       return section;
     }
 
-    section.append(heading, value);
+    section.append(heading, stateBadge, value);
     return section;
   }
 
