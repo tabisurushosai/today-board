@@ -116,13 +116,26 @@ type MountedTodayBoardAppOptions = TodayBoardAppOptions & {
   root: HTMLElement;
 };
 
+type InitializedAppState = AppState & {
+  firstOpenedAt: string;
+  locale: SupportedLocale;
+};
+
+type StateCardOptions = {
+  className: string;
+  role: "alert" | "status";
+  titleKey: TranslationKey;
+  descriptionKey: TranslationKey;
+  ariaLive?: "polite";
+};
+
 class TodayBoardApp {
   private readonly root: HTMLElement;
   private readonly storage: AppStorage;
   private readonly preferredLanguage: string | null;
   private readonly now: () => Date;
   private readonly scheduleRender: ScheduleRender | undefined;
-  private state!: AppState;
+  private state!: InitializedAppState;
   private statusMessage = "";
   private pendingFocusId: string | null = null;
   private showFirstRunGuide = false;
@@ -163,10 +176,6 @@ class TodayBoardApp {
   }
 
   private render(): void {
-    if (!this.state.locale) {
-      return;
-    }
-
     const locale = this.state.locale;
     this.syncDocumentMetadata(locale);
     const now = this.now();
@@ -394,7 +403,7 @@ class TodayBoardApp {
       "payment-placeholder",
       formatPaymentSummary(locale, PREMIUM_PRICE_USD),
     );
-    payment.dataset.paymentLinkPlaceholder = STRIPE_PAYMENT_LINK;
+    payment.dataset["paymentLinkPlaceholder"] = STRIPE_PAYMENT_LINK;
     section.append(heading, statusLine, note, payment);
     return section;
   }
@@ -407,9 +416,6 @@ class TodayBoardApp {
 
   private async savePlannedItem(rawValue: string): Promise<void> {
     const locale = this.state.locale;
-    if (!locale) {
-      return;
-    }
 
     const plannedItem: PlannedItem = {
       text: normalizePlannedItemText(rawValue),
@@ -449,26 +455,36 @@ class TodayBoardApp {
   }
 
   private renderLoadError(locale: SupportedLocale): void {
-    this.syncDocumentMetadata(locale);
-    const error = element("section", "load-error state-card");
-    error.setAttribute("role", "alert");
-    error.append(
-      element("h1", "state-title", text(locale, "loadErrorTitle")),
-      element("p", "state-description", text(locale, "loadError")),
-    );
-    this.root.replaceChildren(error);
+    this.renderStateCard(locale, {
+      className: "load-error state-card",
+      role: "alert",
+      titleKey: "loadErrorTitle",
+      descriptionKey: "loadError",
+    });
   }
 
   private renderLoading(locale: SupportedLocale): void {
+    this.renderStateCard(locale, {
+      className: "loading-card state-card",
+      role: "status",
+      titleKey: "loadingTitle",
+      descriptionKey: "loading",
+      ariaLive: "polite",
+    });
+  }
+
+  private renderStateCard(locale: SupportedLocale, options: StateCardOptions): void {
     this.syncDocumentMetadata(locale);
-    const loading = element("section", "loading-card state-card");
-    loading.setAttribute("role", "status");
-    loading.setAttribute("aria-live", "polite");
-    loading.append(
-      element("h1", "state-title", text(locale, "loadingTitle")),
-      element("p", "state-description", text(locale, "loading")),
+    const card = element("section", options.className);
+    card.setAttribute("role", options.role);
+    if (options.ariaLive) {
+      card.setAttribute("aria-live", options.ariaLive);
+    }
+    card.append(
+      element("h1", "state-title", text(locale, options.titleKey)),
+      element("p", "state-description", text(locale, options.descriptionKey)),
     );
-    this.root.replaceChildren(loading);
+    this.root.replaceChildren(card);
   }
 
   private syncDocumentMetadata(locale: SupportedLocale): void {
