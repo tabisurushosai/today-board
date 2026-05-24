@@ -150,6 +150,7 @@ class TodayBoardApp {
     }
 
     const locale = this.state.locale;
+    this.syncDocumentMetadata(locale);
     const now = this.now();
     const today = buildTodayViewModel(now, locale);
     const premium = getPremiumStatus({
@@ -243,6 +244,7 @@ class TodayBoardApp {
       action.type = "button";
       action.className = "secondary-button empty-action";
       action.textContent = text(locale, "emptyStateAction");
+      action.setAttribute("aria-controls", "planned-item");
       action.addEventListener("click", () => {
         document.getElementById("planned-item")?.focus();
       });
@@ -283,6 +285,7 @@ class TodayBoardApp {
     input.maxLength = MAX_PLANNED_ITEM_LENGTH;
     input.value = this.state.plannedItem.text;
     input.autocomplete = "off";
+    input.enterKeyHint = "done";
     input.setAttribute("aria-describedby", "planned-item-hint planned-item-status");
 
     const saveButton = document.createElement("button");
@@ -386,6 +389,7 @@ class TodayBoardApp {
   }
 
   private renderLoadError(locale: SupportedLocale): void {
+    this.syncDocumentMetadata(locale);
     const error = element("section", "load-error state-card");
     error.setAttribute("role", "alert");
     error.append(
@@ -396,6 +400,7 @@ class TodayBoardApp {
   }
 
   private renderLoading(locale: SupportedLocale): void {
+    this.syncDocumentMetadata(locale);
     const loading = element("section", "loading-card state-card");
     loading.setAttribute("role", "status");
     loading.setAttribute("aria-live", "polite");
@@ -404,6 +409,11 @@ class TodayBoardApp {
       element("p", "state-description", text(locale, "loading")),
     );
     this.root?.replaceChildren(loading);
+  }
+
+  private syncDocumentMetadata(locale: SupportedLocale): void {
+    document.documentElement.lang = locale;
+    document.title = text(locale, "appTitle");
   }
 }
 
