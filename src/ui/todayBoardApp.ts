@@ -2,7 +2,8 @@ import { buildTodayViewModel, resolveLocale } from "../core/date";
 import { formatDayCount, formatDayCountAdjective, formatUsdPrice } from "../core/format";
 import { MAX_PLANNED_ITEM_LENGTH, normalizePlannedItemText } from "../core/plannedItem";
 import { PREMIUM_PRICE_USD, STRIPE_PAYMENT_LINK, TRIAL_DAYS, getPremiumStatus } from "../core/premium";
-import type { AppState, SupportedLocale } from "../core/types";
+import type { PremiumStatus } from "../core/premium";
+import type { AppState, PlannedItem, SupportedLocale } from "../core/types";
 import type { AppStorage } from "../storage/appStorage";
 
 const translations = {
@@ -87,7 +88,7 @@ const translations = {
 } as const;
 
 type TranslationKey = keyof (typeof translations)["ja"];
-type ScheduleRender = (callback: () => void, milliseconds: number) => unknown;
+type ScheduleRender = (callback: () => void, milliseconds: number) => void;
 
 export type TodayBoardAppOptions = {
   root: HTMLElement | null;
@@ -98,12 +99,23 @@ export type TodayBoardAppOptions = {
 };
 
 export function mountTodayBoardApp(options: TodayBoardAppOptions): void {
-  const app = new TodayBoardApp(options);
+  if (!options.root) {
+    return;
+  }
+
+  const app = new TodayBoardApp({
+    ...options,
+    root: options.root,
+  });
   void app.initialize();
 }
 
+type MountedTodayBoardAppOptions = TodayBoardAppOptions & {
+  root: HTMLElement;
+};
+
 class TodayBoardApp {
-  private readonly root: HTMLElement | null;
+  private readonly root: HTMLElement;
   private readonly storage: AppStorage;
   private readonly preferredLanguage: string | null;
   private readonly now: () => Date;
@@ -113,7 +125,7 @@ class TodayBoardApp {
   private pendingFocusId: string | null = null;
   private showFirstRunGuide = false;
 
-  constructor(options: TodayBoardAppOptions) {
+  constructor(options: MountedTodayBoardAppOptions) {
     this.root = options.root;
     this.storage = options.storage;
     this.preferredLanguage = options.preferredLanguage ?? null;
@@ -122,10 +134,6 @@ class TodayBoardApp {
   }
 
   async initialize(): Promise<void> {
-    if (!this.root) {
-      return;
-    }
-
     this.renderLoading(resolveLocale(this.preferredLanguage));
 
     try {
@@ -153,7 +161,7 @@ class TodayBoardApp {
   }
 
   private render(): void {
-    if (!this.root || !this.state.locale) {
+    if (!this.state.locale) {
       return;
     }
 
@@ -359,7 +367,7 @@ class TodayBoardApp {
 
   private createPremiumCard(
     locale: SupportedLocale,
-    premium: ReturnType<typeof getPremiumStatus>,
+    premium: PremiumStatus,
   ): HTMLElement {
     const section = element("section", "premium-card");
     const heading = element("h2", "section-title", text(locale, "premiumTitle"));
@@ -394,7 +402,7 @@ class TodayBoardApp {
       return;
     }
 
-    const plannedItem = {
+    const plannedItem: PlannedItem = {
       text: normalizePlannedItemText(rawValue),
       updatedAt: this.now().toISOString(),
     };
@@ -439,7 +447,7 @@ class TodayBoardApp {
       element("h1", "state-title", text(locale, "loadErrorTitle")),
       element("p", "state-description", text(locale, "loadError")),
     );
-    this.root?.replaceChildren(error);
+    this.root.replaceChildren(error);
   }
 
   private renderLoading(locale: SupportedLocale): void {
@@ -451,7 +459,7 @@ class TodayBoardApp {
       element("h1", "state-title", text(locale, "loadingTitle")),
       element("p", "state-description", text(locale, "loading")),
     );
-    this.root?.replaceChildren(loading);
+    this.root.replaceChildren(loading);
   }
 
   private syncDocumentMetadata(locale: SupportedLocale): void {
