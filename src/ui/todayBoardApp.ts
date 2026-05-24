@@ -14,13 +14,14 @@ const translations = {
     plannedItemLabel: "次の予定",
     noPlannedItem: "次の予定は未登録です。",
     firstRunGuideTitle: "はじめに",
-    firstRunGuide: "次の予定を1件だけ登録すると、今日の表示と一緒に大きく確認できます。",
-    emptyStateDescription: "日付と曜日はこのまま確認できます。次の予定は1件だけ登録できます。",
-    emptyStateAction: "入力欄へ移動",
+    firstRunGuide: "まずは下の入力欄に、次の予定を1件だけ入れて保存してください。",
+    emptyStateDescription: "日付と曜日はこのまま確認できます。未登録の間は、下の入力欄から次の予定を1件だけ保存できます。",
+    emptyStateAction: "次の予定を入力する",
     skipToEditor: "次の予定の入力欄へ移動",
     editTitle: "次の予定を登録",
     editHint: "1件だけ、短い言葉で入力してください。",
     plannedItemInputLabel: "次の予定",
+    plannedItemPlaceholder: "例: 15時 外出",
     save: "保存",
     saved: "保存しました",
     savedStateLabel: "登録済み",
@@ -52,13 +53,14 @@ const translations = {
     plannedItemLabel: "Next plan",
     noPlannedItem: "No next plan has been saved yet.",
     firstRunGuideTitle: "Getting started",
-    firstRunGuide: "Add one next plan to see it in large text with today's display.",
-    emptyStateDescription: "The date and day of the week are ready to use. You can save one next plan.",
-    emptyStateAction: "Go to input",
+    firstRunGuide: "Start by entering one next plan below, then save it.",
+    emptyStateDescription: "The date and day of the week are ready to use. While empty, save one next plan from the input below.",
+    emptyStateAction: "Enter next plan",
     skipToEditor: "Skip to next plan input",
     editTitle: "Save next plan",
     editHint: "Enter one short item only.",
     plannedItemInputLabel: "Next plan",
+    plannedItemPlaceholder: "Example: 3 PM outing",
     save: "Save",
     saved: "Saved",
     savedStateLabel: "Saved",
@@ -279,11 +281,13 @@ class TodayBoardApp {
 
     if (!hasPlannedItem) {
       const description = element("p", "empty-description", text(locale, "emptyStateDescription"));
+      description.id = "empty-state-description";
       const action = document.createElement("button");
       action.type = "button";
       action.className = "secondary-button empty-action";
       action.textContent = text(locale, "emptyStateAction");
       action.setAttribute("aria-controls", "planned-item");
+      action.setAttribute("aria-describedby", "empty-state-description");
       action.addEventListener("click", () => {
         document.getElementById("planned-item")?.focus();
       });
@@ -322,6 +326,7 @@ class TodayBoardApp {
     input.type = "text";
     input.maxLength = MAX_PLANNED_ITEM_LENGTH;
     input.value = this.state.plannedItem.text;
+    input.placeholder = text(locale, "plannedItemPlaceholder");
     input.autocomplete = "off";
     input.enterKeyHint = "done";
     input.setAttribute("aria-describedby", "planned-item-hint planned-item-status");
