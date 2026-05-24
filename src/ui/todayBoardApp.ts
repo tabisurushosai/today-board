@@ -1,7 +1,7 @@
 import { buildTodayViewModel, resolveLocale } from "../core/date";
-import { formatDayCount, formatUsdPrice } from "../core/format";
+import { formatDayCount, formatDayCountAdjective, formatUsdPrice } from "../core/format";
 import { MAX_PLANNED_ITEM_LENGTH, normalizePlannedItemText } from "../core/plannedItem";
-import { PREMIUM_PRICE_USD, STRIPE_PAYMENT_LINK, getPremiumStatus } from "../core/premium";
+import { PREMIUM_PRICE_USD, STRIPE_PAYMENT_LINK, TRIAL_DAYS, getPremiumStatus } from "../core/premium";
 import type { AppState, SupportedLocale } from "../core/types";
 import type { AppStorage } from "../storage/appStorage";
 
@@ -12,10 +12,10 @@ const translations = {
     dateLabel: "今日の日付",
     weekdayLabel: "曜日",
     plannedItemLabel: "次の予定",
-    noPlannedItem: "次の予定はまだ登録されていません。",
+    noPlannedItem: "次の予定は未登録です。",
     firstRunGuideTitle: "はじめに",
-    firstRunGuide: "次の予定を1件だけ入れると、今日の表示と一緒に大きく確認できます。",
-    emptyStateDescription: "日付と曜日はこのまま確認できます。次の予定は1件だけ保存できます。",
+    firstRunGuide: "次の予定を1件だけ登録すると、今日の表示と一緒に大きく確認できます。",
+    emptyStateDescription: "日付と曜日はこのまま確認できます。次の予定は1件だけ登録できます。",
     emptyStateAction: "入力欄へ移動",
     skipToEditor: "次の予定の入力欄へ移動",
     editTitle: "次の予定を登録",
@@ -23,21 +23,22 @@ const translations = {
     plannedItemInputLabel: "次の予定",
     save: "保存",
     saved: "保存しました",
-    savedStateLabel: "完了",
+    savedStateLabel: "登録済み",
+    statusSuccessLabel: "完了",
     loadingTitle: "読み込み中",
     loading: "保存済みの内容を確認しています。",
     emptyStateLabel: "未登録",
     language: "表示言語",
     japanese: "日本語",
-    english: "English",
+    english: "英語",
     premiumTitle: "プレミアム",
-    trialActive: "7日間のトライアル中",
+    trialActive: "トライアル中",
     trialExpired: "トライアルは終了しました",
     premiumActive: "プレミアムは有効です",
     trialRemaining: "残り",
-    premiumNote: "プレミアムが無効でも、基本表示は使えます。",
+    premiumNote: "プレミアムが無効でも、基本の表示は使えます。",
     paymentPending: "支払いリンクは本番環境の設定待ちです。",
-    paymentMeta: "買い切り",
+    paymentMeta: "一度きりの購入",
     privacyNote: "ネットワーク通信は行いません。保存先はこの端末のローカル保存のみです。",
     footerScope: "この拡張は日付・曜日・次の予定の表示だけを行います。",
     loadErrorTitle: "読み込みに失敗しました",
@@ -45,22 +46,23 @@ const translations = {
   },
   en: {
     appTitle: "Today Board",
-    purpose: "Displays today's date, day of the week, and the next planned item in large text.",
+    purpose: "Displays today's date, day of the week, and the next plan in large text.",
     dateLabel: "Today's date",
     weekdayLabel: "Day of the week",
-    plannedItemLabel: "Next planned item",
-    noPlannedItem: "No next planned item is saved yet.",
-    firstRunGuideTitle: "First step",
-    firstRunGuide: "Add one next planned item to see it in large text with today's display.",
-    emptyStateDescription: "The date and day of the week are ready to use. You can save one next planned item.",
+    plannedItemLabel: "Next plan",
+    noPlannedItem: "No next plan has been saved yet.",
+    firstRunGuideTitle: "Getting started",
+    firstRunGuide: "Add one next plan to see it in large text with today's display.",
+    emptyStateDescription: "The date and day of the week are ready to use. You can save one next plan.",
     emptyStateAction: "Go to input",
-    skipToEditor: "Skip to next planned item input",
-    editTitle: "Save next planned item",
+    skipToEditor: "Skip to next plan input",
+    editTitle: "Save next plan",
     editHint: "Enter one short item only.",
-    plannedItemInputLabel: "Next planned item",
+    plannedItemInputLabel: "Next plan",
     save: "Save",
     saved: "Saved",
-    savedStateLabel: "Done",
+    savedStateLabel: "Saved",
+    statusSuccessLabel: "Done",
     loadingTitle: "Loading",
     loading: "Checking saved data.",
     emptyStateLabel: "Not saved",
@@ -68,7 +70,7 @@ const translations = {
     japanese: "日本語",
     english: "English",
     premiumTitle: "Premium",
-    trialActive: "7-day trial active",
+    trialActive: "trial active",
     trialExpired: "Trial has ended",
     premiumActive: "Premium active",
     trialRemaining: "left",
@@ -76,7 +78,7 @@ const translations = {
     paymentPending: "Payment link is pending production configuration.",
     paymentMeta: "one-time purchase",
     privacyNote: "No network communication is used. Data is saved only in this device's local storage.",
-    footerScope: "This extension only displays the date, the day of the week, and the next planned item.",
+    footerScope: "This extension only displays the date, the day of the week, and the next plan.",
     loadErrorTitle: "Could not load data",
     loadError: "Could not load saved data. Please reload the extension.",
   },
@@ -343,7 +345,7 @@ class TodayBoardApp {
     message.setAttribute("aria-live", "polite");
     message.setAttribute("aria-atomic", "true");
     if (this.statusMessage) {
-      message.append(element("span", "status-label", text(locale, "savedStateLabel")), this.statusMessage);
+      message.append(element("span", "status-label", text(locale, "statusSuccessLabel")), this.statusMessage);
     }
     section.append(message);
 
@@ -467,12 +469,13 @@ function text(locale: SupportedLocale, key: TranslationKey): string {
 }
 
 function formatTrialStatus(locale: SupportedLocale, daysRemaining: number): string {
+  const trialLength = formatDayCountAdjective(TRIAL_DAYS, locale);
   const remainingDays = formatDayCount(daysRemaining, locale);
   if (locale === "ja") {
-    return `${text(locale, "trialActive")}（${text(locale, "trialRemaining")}${remainingDays}）`;
+    return `${trialLength}の${text(locale, "trialActive")}（${text(locale, "trialRemaining")}${remainingDays}）`;
   }
 
-  return `${text(locale, "trialActive")} (${remainingDays} ${text(locale, "trialRemaining")})`;
+  return `${trialLength} ${text(locale, "trialActive")} (${remainingDays} ${text(locale, "trialRemaining")})`;
 }
 
 function formatPaymentSummary(locale: SupportedLocale, amountUsd: number): string {
@@ -481,7 +484,7 @@ function formatPaymentSummary(locale: SupportedLocale, amountUsd: number): strin
     return `${price}（${text(locale, "paymentMeta")}）。${text(locale, "paymentPending")}`;
   }
 
-  return `${price} ${text(locale, "paymentMeta")}. ${text(locale, "paymentPending")}`;
+  return `${price} (${text(locale, "paymentMeta")}). ${text(locale, "paymentPending")}`;
 }
 
 function getLanguageNavigationTarget(
