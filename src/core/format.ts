@@ -20,6 +20,10 @@ export function formatDayCountAdjective(dayCount: number, locale: SupportedLocal
 }
 
 export function formatUsdPrice(amount: number, locale: SupportedLocale): string {
+  if (locale === "ja") {
+    return `US$${formatInteger(amount, locale)}`;
+  }
+
   return new Intl.NumberFormat(toIntlLocale(locale), {
     style: "currency",
     currency: "USD",
