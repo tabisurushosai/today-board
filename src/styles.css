@@ -322,7 +322,6 @@ input {
 }
 
 .empty-description {
-  margin: 0;
   max-width: 52rem;
   color: var(--muted-strong);
   font-weight: 700;
