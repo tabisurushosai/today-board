@@ -299,6 +299,9 @@ input {
 }
 
 .onboarding-card {
+  display: grid;
+  gap: 16px;
+  justify-items: start;
   color: var(--accent-dark);
   background: var(--accent-soft);
 }
@@ -327,6 +330,10 @@ input {
 
 .empty-action {
   justify-self: start;
+  margin-top: 2px;
+}
+
+.onboarding-action {
   margin-top: 2px;
 }
 

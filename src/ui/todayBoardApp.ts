@@ -15,7 +15,7 @@ const translations = {
     plannedItemLabel: "次の予定",
     noPlannedItem: "次の予定を保存すると、ここに大きく表示されます。",
     firstRunGuideTitle: "一言ガイド",
-    firstRunGuide: "まずは下の「入力欄へ進む」から、次の予定を1件だけ保存します。",
+    firstRunGuide: "まずは「入力欄へ進む」から、次の予定を1件だけ保存します。",
     emptyStateDescription: "日付と曜日はこのまま確認できます。予定を保存すると、この枠に大きく表示されます。",
     emptyStateAction: "入力欄へ進む",
     skipToEditor: "次の予定の入力欄へ移動",
@@ -55,7 +55,7 @@ const translations = {
     plannedItemLabel: "Next planned item",
     noPlannedItem: "Save a planned item to show it here in large text.",
     firstRunGuideTitle: "Quick guide",
-    firstRunGuide: "Start by choosing “Go to input” below, then save one next planned item.",
+    firstRunGuide: "Start by choosing “Go to input,” then save one next planned item.",
     emptyStateDescription: "The date and weekday are ready to view. After you save an item, it appears in this large display area.",
     emptyStateAction: "Go to input",
     skipToEditor: "Skip to the next planned item input",
@@ -251,8 +251,20 @@ class TodayBoardApp {
     const section = element("section", "onboarding-card");
     const heading = element("h2", "onboarding-title", text(locale, "firstRunGuideTitle"));
     heading.id = "onboarding-heading";
+    const guide = element("p", "onboarding-guide", text(locale, "firstRunGuide"));
+    guide.id = "onboarding-guide";
+    const action = document.createElement("button");
+    action.type = "button";
+    action.className = "secondary-button onboarding-action";
+    action.textContent = text(locale, "emptyStateAction");
+    action.setAttribute("aria-controls", "planned-item");
+    action.setAttribute("aria-describedby", "onboarding-guide");
+    action.addEventListener("click", () => {
+      document.getElementById("planned-item")?.focus();
+    });
     section.setAttribute("aria-labelledby", "onboarding-heading");
-    section.append(heading, element("p", "onboarding-guide", text(locale, "firstRunGuide")));
+    section.setAttribute("aria-describedby", "onboarding-guide");
+    section.append(heading, guide, action);
     return section;
   }
 
