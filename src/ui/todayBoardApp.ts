@@ -21,6 +21,8 @@ const translations = {
     emptyStateDescription: "日付と曜日はこのまま確認できます。予定を保存すると、この枠に大きく表示されます。",
     emptyStateAction: "入力欄へ進む",
     skipToEditor: "次の予定の入力欄へ移動",
+    mainContentLabel: "今日の情報と次の予定",
+    todayBoardTitle: "今日の情報",
     editTitle: "次の予定を保存",
     editHint: "予定は1件だけ、短い言葉で入力します。",
     plannedItemInputLabel: "次の予定",
@@ -61,6 +63,8 @@ const translations = {
     emptyStateDescription: "The date and weekday are ready to view. After you save an item, it appears in this large display area.",
     emptyStateAction: "Go to input",
     skipToEditor: "Skip to the next planned item input",
+    mainContentLabel: "Today's information and next planned item",
+    todayBoardTitle: "Today's information",
     editTitle: "Save the next planned item",
     editHint: "Enter only one short item.",
     plannedItemInputLabel: "Next planned item",
@@ -191,13 +195,28 @@ class TodayBoardApp {
     this.root.replaceChildren(
       this.createSkipLink(locale),
       this.createHeader(locale),
+      this.createMainContent(locale, today.dateText, today.weekdayText, premium),
+      this.createFooter(locale),
+    );
+  }
+
+  private createMainContent(
+    locale: SupportedLocale,
+    dateText: string,
+    weekdayText: string,
+    premium: PremiumStatus,
+  ): HTMLElement {
+    const main = element("main", "app-main");
+    main.id = "main-content";
+    main.setAttribute("aria-label", text(locale, "mainContentLabel"));
+    main.append(
       ...(this.showFirstRunGuide ? [this.createFirstRunGuide(locale)] : []),
-      this.createTodayBoard(locale, today.dateText, today.weekdayText),
+      this.createTodayBoard(locale, dateText, weekdayText),
       this.createPlannedItemCard(locale),
       this.createEditor(locale),
       this.createPremiumCard(locale, premium),
-      this.createFooter(locale),
     );
+    return main;
   }
 
   private createHeader(locale: SupportedLocale): HTMLElement {
@@ -244,7 +263,7 @@ class TodayBoardApp {
     link.textContent = text(locale, "skipToEditor");
     link.addEventListener("click", (event) => {
       event.preventDefault();
-      document.getElementById("planned-item")?.focus();
+      focusPlannedItemInput();
     });
     return link;
   }
@@ -262,7 +281,7 @@ class TodayBoardApp {
     action.setAttribute("aria-controls", "planned-item");
     action.setAttribute("aria-describedby", "onboarding-guide");
     action.addEventListener("click", () => {
-      document.getElementById("planned-item")?.focus();
+      focusPlannedItemInput();
     });
     section.setAttribute("aria-labelledby", "onboarding-heading");
     section.setAttribute("aria-describedby", "onboarding-guide");
@@ -291,8 +310,11 @@ class TodayBoardApp {
 
   private createTodayBoard(locale: SupportedLocale, dateText: string, weekdayText: string): HTMLElement {
     const section = element("section", "today-board");
-    section.setAttribute("aria-label", text(locale, "appTitle"));
+    const heading = element("h2", "visually-hidden", text(locale, "todayBoardTitle"));
+    heading.id = "today-board-heading";
+    section.setAttribute("aria-labelledby", "today-board-heading");
     section.append(
+      heading,
       createLargeFact("date-fact", text(locale, "dateLabel"), dateText),
       createLargeFact("weekday-fact", text(locale, "weekdayLabel"), weekdayText),
     );
@@ -328,7 +350,7 @@ class TodayBoardApp {
       action.setAttribute("aria-controls", "planned-item");
       action.setAttribute("aria-describedby", "empty-state-description");
       action.addEventListener("click", () => {
-        document.getElementById("planned-item")?.focus();
+        focusPlannedItemInput();
       });
       section.setAttribute("aria-describedby", "planned-item-state planned-item-value empty-state-description");
 
@@ -347,6 +369,7 @@ class TodayBoardApp {
 
   private createEditor(locale: SupportedLocale): HTMLElement {
     const section = element("section", "editor-card");
+    section.id = "planned-item-editor";
     const heading = element("h2", "section-title", text(locale, "editTitle"));
     heading.id = "planned-item-editor-heading";
     const hint = element("p", "hint", text(locale, "editHint"));
@@ -354,6 +377,7 @@ class TodayBoardApp {
     const limit = element("p", "hint input-limit", formatCharacterLimit(locale, MAX_PLANNED_ITEM_LENGTH));
     limit.id = "planned-item-limit";
     section.setAttribute("aria-labelledby", "planned-item-editor-heading");
+    section.setAttribute("aria-describedby", "planned-item-hint planned-item-limit planned-item-status");
     const form = document.createElement("form");
     form.className = "planned-form";
     form.setAttribute("aria-describedby", "planned-item-hint planned-item-limit");
@@ -378,6 +402,7 @@ class TodayBoardApp {
     saveButton.type = "submit";
     saveButton.className = "primary-button";
     saveButton.textContent = text(locale, "save");
+    saveButton.setAttribute("aria-controls", "planned-item-value planned-item-status");
 
     form.append(label, input, saveButton);
     form.addEventListener("submit", (event) => {
@@ -568,6 +593,10 @@ function getLanguageNavigationTarget(
   }
 
   return currentLocale === "ja" ? "en" : "ja";
+}
+
+function focusPlannedItemInput(): void {
+  document.getElementById("planned-item")?.focus();
 }
 
 function element<TagName extends keyof HTMLElementTagNameMap>(
