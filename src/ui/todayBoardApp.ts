@@ -6,6 +6,8 @@ import type { PremiumStatus } from "../core/premium";
 import type { AppState, PlannedItem, SupportedLocale } from "../core/types";
 import type { AppStorage } from "../storage/appStorage";
 
+type TranslationMessages = Record<string, string>;
+
 const translations = {
   ja: {
     appTitle: "きょうボード",
@@ -87,7 +89,7 @@ const translations = {
     loadErrorTitle: "Could not load data",
     loadError: "Could not load saved data. Please reload the extension.",
   },
-} as const;
+} as const satisfies Record<SupportedLocale, TranslationMessages>;
 
 type TranslationKey = keyof (typeof translations)["ja"];
 type ScheduleRender = (callback: () => void, milliseconds: number) => void;

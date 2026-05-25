@@ -1,9 +1,9 @@
 import type { SupportedLocale } from "./types";
 
-export type TodayViewModel = {
+export type TodayViewModel = Readonly<{
   dateText: string;
   weekdayText: string;
-};
+}>;
 
 export function resolveLocale(language?: string | null): SupportedLocale {
   return language?.toLowerCase().startsWith("en") ? "en" : "ja";

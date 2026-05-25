@@ -3,12 +3,12 @@ export const TRIAL_DAYS = 7;
 export const STRIPE_PAYMENT_LINK = "STRIPE_PAYMENT_LINK_PLACEHOLDER";
 const MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000;
 
-export type PremiumStatus = {
+export type PremiumStatus = Readonly<{
   isPremium: boolean;
   isTrialActive: boolean;
   daysRemaining: number;
   trialEndsAt: string | null;
-};
+}>;
 
 export function getPremiumStatus(params: {
   firstOpenedAt: string | null;
